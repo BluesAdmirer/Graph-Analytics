@@ -18,6 +18,20 @@ __global__ void kernel(int *cstart, int *cend, int *cmemsz, int *cmember, int *c
 	}
 }
 
+__global__ void kernel1(int *cn, int *csize, int *cmem, int *cgraph, 
+							int *ctemp, int *ccurr, int *crank, int *coutdeg)
+{
+	int w = blockIdx.x;
+	if(w < (*cn)){
+		int size = csize[cmem[w]];
+		int j = threadIdx.x;
+		if(j < size){
+			int node = cgraph[ctemp[cmem[w]]+j];
+			atomicAdd(&ccurr[w], crank[node]/coutdeg[node]);
+		}
+	}
+}
+
 __global__ void update(double *cinitial, int *cn){
 	int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	int num_threads = blockDim.x * gridDim.x;
