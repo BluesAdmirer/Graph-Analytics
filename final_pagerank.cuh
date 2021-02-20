@@ -740,7 +740,7 @@ long long int computerankdc(vector < vector < int > > & graph,int n,int outdeg[]
 
 int  computeparalleli(vector < vector < int > > & graph , vector < vector < int > > & alt,int parent[],vector <int > left,int n,int outdeg[],vector < int > &  mapit,double rank[],double initial[])
 {
-
+	// add int nn in argument for original graph size
 	double damp=0.85;
 	double thres=1e-10;
 	double value=1e-12/n;
@@ -770,6 +770,61 @@ int  computeparalleli(vector < vector < int > > & graph , vector < vector < int 
 		int *cn;
 		cudaMalloc((void**)&cn, sizeof(int));
 		cudaMemcpy(cn, &n, sizeof(int), cudaMemcpyHostToDevice);
+
+		int mem[n],sz[n];
+		for(int i=0;i<n;i++){
+			mem[i]=mapit[i];
+			sz[i]=graph[mapit[i]].size();
+		}
+		int *cmem;
+		cudaMalloc((void**)&cmem, n*sizeof(int));
+		cudaMemcpy(cmem, mem, n*sizeof(int), cudaMemcpyHostToDevice);
+
+		int *csize;
+		cudaMalloc((void**)&csize, n*sizeof(int));
+		cudaMemcpy(csize, sz, n*sizeof(int), cudaMemcpyHostToDevice);
+
+		int *ccurr;
+
+		cudaMalloc((void**)&ccurr, n*sizeof(int));
+		cudaMemcpy(ccurr, curr, n*sizeof(int), cudaMemcpyHostToDevice);
+
+		double *crank;
+		cudaMalloc((void**)&crank, nn*sizeof(double));
+		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
+
+		int *coutdeg;
+		cudaMalloc((void**)&coutdeg, nn*sizeof(int));
+		cudaMemcpy(coutdeg, outdeg, nn*sizeof(int), cudaMemcpyHostToDevice);
+
+		int temp[n];
+		int szz=0;
+		for(int i=0;i<n;i++){
+			if(i){
+				temp[i]=temp[i-1]+graph[i-1].size();
+			}else{
+				temp[i]=0;
+			}
+			szz+=graph[i].size();
+		}
+		int graphh[szz];
+		int k=0;
+		for(int i=0;i<n;i++){
+			for(auto c:graph[i]){
+				graph[k++]=c;
+			}
+		}
+
+		int *ctemp;
+		cudaMalloc((void**)&ctemp, n*sizeof(int));
+		cudaMemcpy(ctemp, temp, n*sizeof(int), cudaMemcpyHostToDevice);
+
+		int *cgraph;
+
+		cudaMalloc((void**)&cgraph, szz*sizeof(int));
+		cudaMemcpy(cgraph, graphh, szz*sizeof(int), cudaMemcpyHostToDevice);
+
+		kernel1<<<10,10>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg)
 // #pragma omp parallel for private(i,j) 
 // 		for(i=0;i<pivot;i++)
 // 		{   
