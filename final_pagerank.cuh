@@ -824,7 +824,9 @@ int  computeparalleli(vector < vector < int > > & graph , vector < vector < int 
 		cudaMalloc((void**)&cgraph, szz*sizeof(int));
 		cudaMemcpy(cgraph, graphh, szz*sizeof(int), cudaMemcpyHostToDevice);
 
-		kernel1<<<10,10>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg)
+		kernel1<<<10,10>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg);
+		
+		cudaMemcpy(curr, ccurr, n*sizeof(int), cudaMemcpyDeviceToHost);
 // #pragma omp parallel for private(i,j) 
 // 		for(i=0;i<pivot;i++)
 // 		{   
