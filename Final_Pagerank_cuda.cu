@@ -3,7 +3,6 @@
 #include<vector>
 #include<cstring>
 #include<queue>
-#include<fstream>
 #include<algorithm>
 #include<fstream>
 #include "Final_Pagerank_cuda.cuh"
@@ -64,7 +63,7 @@ void toposort(int node,int order[],vector < vector < int > > & graph,int visit[]
 	order[inc--]=node;
 }
 
-void topobfs(vector < vector < int > > & graph,int level[],int order[],int visit[])
+void topobfs(vector < vector < int > > & graph,int order[],int visit[])
 {
 	int i,j;
 	queue < int > line;
@@ -86,7 +85,6 @@ void topobfs(vector < vector < int > > & graph,int level[],int order[],int visit
 	{
 		int node=line.front();
 		line.pop();
-		level[visit[node]]++;
 		order[inc++]=node;
 		for(i=0;i<graph[node].size();i++)
 		{
@@ -100,7 +98,7 @@ void topobfs(vector < vector < int > > & graph,int level[],int order[],int visit
 	}
 }
 
-int computeparalleli(vector<vector<int>> &graph, vector<vector<int>> &alt, int parent[], vector<int> left, int n, int outdeg[], vector<int> &mapit, double rank[],double initial[], int nn)
+int computeparalleli(vector<vector<int>> &graph, int parent[], vector<int> left, int n, int outdeg[], vector<int> &mapit, double rank[],double initial[], int nn)
 {
 	double damp=0.85;
 	double thres=1e-10;
@@ -201,7 +199,7 @@ int computeparalleli(vector<vector<int>> &graph, vector<vector<int>> &alt, int p
 	return iterations;
 }
 
-int  computeparallelid(vector < vector < int > > & graph,vector < vector < int > > & alt,int parent[],vector < int > & left,int n,int outdeg[],vector < int > &  mapit,double rank[],double initial[], int nn)
+int  computeparallelid(vector < vector < int > > & graph,int parent[],vector < int > & left,int n,int outdeg[],vector < int > &  mapit,double rank[],double initial[], int nn)
 {
 	double thres=1e-10;
 	double dis=1e-12;
@@ -797,7 +795,7 @@ int computeparalleldc(vector < vector < int > > & graph,int n,int outdeg[],vecto
 	return iterations;
 }
 
-int computeparallelic(vector < vector < int > > & graph,vector < vector < int >  > & alt,int parent[],vector <int > & left, int n,int outdeg[],vector < int > &  mapit,double rank[],double initial[],int level[],int redir[],double powers[], int nn)
+int computeparallelic(vector < vector < int > > & graph,int parent[],vector <int > & left, int n,int outdeg[],vector < int > &  mapit,double rank[],double initial[],int level[],int redir[],double powers[], int nn)
 {
 	double damp=0.85;
 	double thres=1e-10;
@@ -926,7 +924,7 @@ int computeparallelic(vector < vector < int > > & graph,vector < vector < int > 
 	return iterations;
 }
 
-int computeparallelidc(vector < vector < int > > & graph,vector < vector < int > > & alt,int parent[],vector <int> & left,int n,int outdeg[],vector < int > &  mapit,double rank[],double initial[],int level[],int redir[],double powers[], int nn)
+int computeparallelidc(vector < vector < int > > & graph, int parent[],vector <int> & left,int n,int outdeg[],vector < int > &  mapit,double rank[],double initial[],int level[],int redir[],double powers[], int nn)
 {
 	double damp=0.85;
 	double thres=1e-10;
@@ -1078,18 +1076,16 @@ int computeparallelidc(vector < vector < int > > & graph,vector < vector < int >
 }
 
 
-int optchain=0;
-int optdead=0;
-int optident=0;
+int optchain=0,optdead=0,optident=0;
 
 int main()
 {
+	time_t first = clock();
 	ifstream fin;
 	fin.open("test.txt");
 	ofstream fout;
 	fout.open("testcu.txt");
 	int n,m;
-	// cin>>n>>m;
 	fin >> n >> m;
 	int i,j;
 	vector < vector < int > > graph(n);
@@ -1113,9 +1109,6 @@ int main()
 	memset(visit,-1,sizeof(visit));
 	int nvisit[n];
 	memset(nvisit,-1,sizeof(nvisit));
-	time_t start,end,start1,end1;
-	double time_diff,time1;
-	start=clock();
 	for(i=0;i<n;i++)
 		if(nvisit[i]==-1) {
 			dfs(graph,visit,nvisit,i);	
@@ -1130,8 +1123,6 @@ int main()
 			com++;
 		}
 	}
-	end=clock();
-	time_diff=((double)(end-start))/CLOCKS_PER_SEC;
 	for(i=0;i<n;i++)
 		for(j=0;j<rgraph[i].size();j++)
 			if(no[i]==no[rgraph[i][j]]) rcgraph[i].push_back(rgraph[i][j]);
@@ -1143,19 +1134,10 @@ int main()
 			if(no[i]!=no[graph[i][j]]) compgr[no[i]].push_back(no[graph[i][j]]);
 	int order[com];
 	memset(nvisit,0,sizeof(nvisit));
-	inc=com-1;
-	int level[com];
-	memset(level,0,sizeof(level));
 	inc=0;
-	start=clock();
-	topobfs(compgr,level,order,nvisit);
-	end=clock();
-	time_diff=time_diff+((double)(end-start))/CLOCKS_PER_SEC;
-	cout<<"After scc+topo= "<<time_diff<<endl;
+	
+	topobfs(compgr,order,nvisit);
 
-
-
-	start=clock();
 	int number[n];
 	memset(number,0,sizeof(number));
 	for(i=0;i<n;i++) if(rgraph[i].size()==1) number[rgraph[i][0]]++;
@@ -1163,21 +1145,13 @@ int main()
 	for(i=0;i<n;i++) equiperc=equiperc+max(0,number[i]-1);
 	double vai=double(equiperc)/n;
 	double ratio=double(m)/n;
-	cout<<"Percent of 1-degree ident nodes= "<<vai<<endl;
 	if(vai>0.06 && ratio>3.0)
 		optident=1;
-	end=clock();
-	time_diff=time_diff+((double)(end-start))/CLOCKS_PER_SEC;
-	cout<<"After ident nodes= "<<time_diff<<endl;
 
-
-
-	///chain preprocessing ///
 	int parent2[n];
 	memset(parent2,-1,sizeof(parent2));
 	int parent1[n];
 	memset(parent1,-1,sizeof(parent1));
-	start1=clock();
 	for(i=0;i<n;i++)
 	{
 		if(rgraph[i].size()>1 || graph[i].size()>1 ) continue;
@@ -1188,18 +1162,14 @@ int main()
 				parent2[i]=rcgraph[i][j];
 		}
 	}
-	end1=clock();
-	time1 = ((double) (end1 - start1)) / CLOCKS_PER_SEC;
 	int redir[n];
 	int levelz[n];
 	memset(levelz,0,sizeof(levelz));
 	for(i=0;i<n;i++) redir[i]=i;
-	// double randomp=0.15/n;
 	double powers[n];
 	powers[0]=1;
 	for(i=1;i<n;i++)
 		powers[i]=powers[i-1]*0.85;
-	start1=clock();
 	int vac=0;
 	int temp=0;
 	for(i=0;i<n;i++)
@@ -1220,30 +1190,13 @@ int main()
 		temp+=redir[i];
 	}
 	double rac=double(vac)/n;
-	cout<<"percent of chain nodes= "<<rac<<endl;
 	if(rac>0.2)
 		optchain=1;
-	end1=clock();
-	time1 = time1 + ((double) (end1 - start1)) / CLOCKS_PER_SEC;
-	time_diff=time_diff+time1;
-	cout<<"After chain proces= "<<time_diff<<endl;
 
-
-
-	// optchain=1;
-	// optident=1;
-	// optdead=1;
-	// optchain=1;
-	// optident=0;
-	cout<<optident<<" "<<optdead<<" "<<optchain<<endl;
 	if(optident==1 && optchain==0 && optdead==0)
 	{
-		////////////////////////////   equinodes preprocess
 		int parent[n];
 		vector < vector < int > > left(com);
-		vector < vector < int > > alt(n);
-		for(i=0;i<n;i++)
-			alt[i].resize(rcgraph[i].size());
 		for(i=0;i<n;i++)
 			parent[i]=i;
 		vector < vector <  pair  <  pair < long long , int > , int >  > > hvalues(n);
@@ -1260,7 +1213,6 @@ int main()
 				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
 			}
 		}
-		start=clock();
 		for(i=0;i<n;i++)
 			sort(hvalues[i].begin(),hvalues[i].end());
 		for(int k=0;k<n;k++)
@@ -1276,25 +1228,17 @@ int main()
 		}
 		hvalues.clear();
 		int noo=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			if(parent[i]==i) 
 			{
 				members[no[i]].push_back(i);
-				for(j=0;j<rcgraph[i].size();j++)
-				{
-					alt[i][j]=outdeg[rcgraph[i][j]];
-				}
 			}
 			else
 			{
 				left[no[i]].push_back(i);
 				noo++;
 			}
-		end=clock();
-		cout<<"the noo is : "<<noo<<endl;
-		cout<<"the perc is  : "<<((double)noo)/n<<" "<<n<<endl;
-		time_diff=time_diff+((double)(end-start))/CLOCKS_PER_SEC;
-		cout<<"After Equinode preprocessing= "<<time_diff<<endl;
+		}
 		
 		double rank[n];
 		for(i=0;i<n;i++) rank[i]=1.0/n;
@@ -1308,14 +1252,12 @@ int main()
 			par.push_back(j);
 			i=j-1;
 		}
-		end=clock();
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 		int *cn;
 		double *cinitial;
 		cudaMalloc((void**)&cn, sizeof(int));
 		cudaMemcpy(cn, &n, sizeof(int), cudaMemcpyHostToDevice);
-		printf("check\n");
 		for(i=0;i<par.size()-1;i++)
 		{
 			int *cstart;
@@ -1410,26 +1352,24 @@ int main()
 			cudaMemcpy(initial, cinitial, n*sizeof(double), cudaMemcpyDeviceToHost);
 
 			for(j=par[i];j<par[i+1];j++){
-				long long val=computeparalleli(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,n );
+				long long val=computeparalleli(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,n );
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
-		printf("The time taken is %lf\n",time_diff);
 	}
 	if(optident==1 && optchain==0 && optdead==1)	
 	{
-		////////////////////////////   equinodes preprocess
 		int parent[n];
 		vector < vector < int > > left(com);
-		vector < vector < int > > alt(n);
-		for(i=0;i<n;i++)
-			alt[i].resize(rcgraph[i].size());
 		for(i=0;i<n;i++)
 			parent[i]=i;
 		vector < vector <  pair  <  pair < long long , int > , int >  > > hvalues(n);
@@ -1446,7 +1386,6 @@ int main()
 				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
 			}
 		}
-		start=clock();
 		for(i=0;i<n;i++)
 			sort(hvalues[i].begin(),hvalues[i].end());
 		for(int k=0;k<n;k++)
@@ -1462,30 +1401,18 @@ int main()
 		}
 		hvalues.clear();
 		int noo=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			if(parent[i]==i) 
 			{
 				members[no[i]].push_back(i);
-				for(j=0;j<rcgraph[i].size();j++)
-				{
-					alt[i][j]=outdeg[rcgraph[i][j]];
-					// rcgraph[i][j]=parent[rcgraph[i][j]];
-				}
 			}
 			else
 			{
 				left[no[i]].push_back(i);
 				noo++;
 			}
-		end=clock();
-		cout<<"the noo is : "<<noo<<endl;
-		cout<<"the perc is  : "<<((double)noo)/n<<" "<<n<<endl;
-		time_diff=time_diff+((double)(end-start))/CLOCKS_PER_SEC;
-		cout<<"After Equinode preprocessing= "<<time_diff<<endl;
-		//////////////////////////////////
-
+		}
 		double rank[n];
-		//vector < double > rank1(n,1.0/n);
 		for(i=0;i<n;i++) rank[i]=1.0/n;
 		vector < int > par;
 		par.push_back(0);
@@ -1497,7 +1424,6 @@ int main()
 			par.push_back(j);
 			i=j-1;
 		}
-		end=clock();
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 		for(i=0;i<par.size()-1;i++)
@@ -1595,13 +1521,16 @@ int main()
 			cudaMemcpy(initial, cinitial, n*sizeof(double), cudaMemcpyDeviceToHost);
 
 			for(j=par[i];j<par[i+1];j++){
-				long long val=computeparallelid(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,n);
+				long long val=computeparallelid(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,n);
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
@@ -1718,23 +1647,20 @@ int main()
 
 			cudaMemcpy(initial, cinitial, n*sizeof(double), cudaMemcpyDeviceToHost);
 
-			// for(j=0;j<n;j++){
-			// 	fout << initial[j] << "\n"; 
-			// }
-			// fout << "\n";
-
 			for(j=par[i];j<par[i+1];j++){
 				long long val=computeparallel(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial,n);
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
-		fout << "Nan\n";
 	}
 	if(optident==0 && optchain==0 && optdead==1)
 	{
@@ -1853,14 +1779,15 @@ int main()
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
-		fout << "Dead node\n";
-		printf("The time taken is %lf\n",time_diff);
 	}
 	if(optident==0 && optchain==1 && optdead==0)
 	{
@@ -1979,14 +1906,15 @@ int main()
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
-		fout << "Chain\n";
-		printf("The total time taken is %lf\n",time_diff);
 
 	}
 	if(optident==0 && optchain==1 && optdead==1)
@@ -2107,22 +2035,20 @@ int main()
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){ 
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
-		fout << "current\n";
 	}
 	if(optident==1 && optchain==1 && optdead==0)
 	{
-		////////////////////////////   equinodes preprocess
 		int parent[n];
 		vector < vector < int > > left(com);
-		vector < vector < int > > alt(n);
-		for(i=0;i<n;i++)
-			alt[i].resize(rcgraph[i].size());
 		for(i=0;i<n;i++)
 			parent[i]=i;
 		vector < vector <  pair  <  pair < long long , int > , int >  > > hvalues(n);
@@ -2139,7 +2065,6 @@ int main()
 				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
 			}
 		}
-		start=clock();
 		for(i=0;i<n;i++)
 			sort(hvalues[i].begin(),hvalues[i].end());
 		for(int k=0;k<n;k++)
@@ -2155,28 +2080,17 @@ int main()
 		}
 		hvalues.clear();
 		int noo=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			if(parent[i]==i) 
 			{
 				members[no[i]].push_back(i);
-				for(j=0;j<rcgraph[i].size();j++)
-				{
-					alt[i][j]=outdeg[rcgraph[i][j]];
-					// rcgraph[i][j]=parent[rcgraph[i][j]];
-				}
 			}
 			else
 			{
 				left[no[i]].push_back(i);
 				noo++;
 			}
-		end=clock();
-		cout<<"the noo is : "<<noo<<endl;
-		cout<<"the perc is  : "<<((double)noo)/n<<" "<<n<<endl;
-		time_diff=time_diff+((double)(end-start))/CLOCKS_PER_SEC;
-		cout<<"After Equinode preprocessing= "<<time_diff<<endl;
-		//////////////////////////////////
-
+		}
 		double rank[n];
 		for(i=0;i<n;i++) rank[i]=1.0/n;
 		vector < int > par;
@@ -2287,26 +2201,24 @@ int main()
 			
 			for(j=par[i];j<par[i+1];j++)
 			{
-				long long val=computeparallelic(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
+				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
-		fout << "identical chain\n";
 	}
 	if(optident==1 && optchain==1 && optdead==1)
 	{
-		////////////////////////////   equinodes preprocess
 		int parent[n];
 		vector < vector < int > > left(com);
-		vector < vector < int > > alt(n);
-		for(i=0;i<n;i++)
-			alt[i].resize(rcgraph[i].size());
 		for(i=0;i<n;i++)
 			parent[i]=i;
 		vector < vector <  pair  <  pair < long long , int > , int >  > > hvalues(n);
@@ -2323,7 +2235,6 @@ int main()
 				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
 			}
 		}
-		start=clock();
 		for(i=0;i<n;i++)
 			sort(hvalues[i].begin(),hvalues[i].end());
 		for(int k=0;k<n;k++)
@@ -2339,27 +2250,17 @@ int main()
 		}
 		hvalues.clear();
 		int noo=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			if(parent[i]==i) 
 			{
 				members[no[i]].push_back(i);
-				for(j=0;j<rcgraph[i].size();j++)
-				{
-					alt[i][j]=outdeg[rcgraph[i][j]];
-				}
 			}
 			else
 			{
 				left[no[i]].push_back(i);
 				noo++;
 			}
-		end=clock();
-		cout<<"the noo is : "<<noo<<endl;
-		cout<<"the perc is  : "<<((double)noo)/n<<" "<<n<<endl;
-		time_diff=time_diff+((double)(end-start))/CLOCKS_PER_SEC;
-		cout<<"After Equinode preprocessing= "<<time_diff<<endl;
-		//////////////////////////////////
-
+		}
 		double rank[n];
 		for(i=0;i<n;i++) rank[i]=1.0/n;
 		vector < int > par;
@@ -2470,18 +2371,19 @@ int main()
 
 			for(j=par[i];j<par[i+1];j++)
 			{
-				long long val=computeparallelidc(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
+				long long val=computeparallelidc(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 		}
 		double sum=0;
-		for(i=0;i<n;i++)
+		for(i=0;i<n;i++){
 			sum=sum+rank[i];
-		for(i=0;i<n;i++) rank[i]=rank[i]/sum;
+		}
+		for(i=0;i<n;i++){
+			rank[i]=rank[i]/sum;
+		}
 		for(i=0;i<n;i++){
 			fout << rank[i] << "\n";
 		}
-		fout << "Final\n";
-		printf("The time taken is %lf\n",time_diff);
 	}
 	return 0;
 }
