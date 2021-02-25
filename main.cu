@@ -1,39 +1,35 @@
-#include<iostream>
-#include<vector>
-#include<queue>
-#include<fstream>
-#include "kernel.cuh"
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <fstream>
+#include "main.h"
 
 using namespace std;
 
 int inc=0;
 
-int find(int u,int parent[])
-{
+int find(int u,int parent[]){
 	if(parent[u]<0) return u;
 	return parent[u]=find(parent[u],parent);
 }
 
-int unionit(int u,int v,int parent[])
-{
+int unionit(int u,int v,int parent[]){
 	int pu=find(u,parent);
 	int pv=find(v,parent);
 	if(pu==pv) return 0;
-	if(-parent[pu]>-parent[pv])
-	{   
+	if(-parent[pu]>-parent[pv]){   
 		parent[pu]=parent[pu]+parent[pv];
 		parent[pv]=pu;
 	}   
-	else
-	{   
+	else{   
 		parent[pv]=parent[pu]+parent[pv];
 		parent[pu]=pv;
 	}   
 	return 1;
 }
 
-void dfs(vector < vector < int > > & graph,int visit[],int nvisit[],int node)
-{
+void dfs(vector < vector < int > > & graph,int visit[],int nvisit[],int node){
 	nvisit[node]=1;
 	for(int i=0;i<graph[node].size();i++)
 		if(nvisit[graph[node][i]]==-1)
@@ -41,35 +37,33 @@ void dfs(vector < vector < int > > & graph,int visit[],int nvisit[],int node)
 	visit[inc++]=node;
 }
 
-void rdfs(vector < vector < int > > & graph,int nvisit[],int node,int no[],int com)
-{
+void rdfs(vector < vector < int > > & graph,int nvisit[],int node,int component[],int com){
 	nvisit[node]=1;
-	no[node]=com;
+	component[node]=com;
 	for(int i=0;i<graph[node].size();i++)
 		if(nvisit[graph[node][i]]==-1)
-			rdfs(graph,nvisit,graph[node][i],no,com);
+			rdfs(graph,nvisit,graph[node][i],component,com);
 }
 
-void topobfs(vector < vector < int > > & graph, int order[], int visit[])
-{
+void topobfs(vector < vector < int > > & graph, int order[], int visit[]){
 	int i,j;
 	queue < int > line;
 	memset(visit, -1, sizeof(int)*graph.size());
 	int indegree[graph.size()];
 	memset(indegree,0,sizeof(indegree));
-	for(i=0;i<graph.size();i++)
-		for(j=0;j<graph[i].size();j++)
+	for(i=0;i<graph.size();i++){
+		for(j=0;j<graph[i].size();j++){
 			indegree[graph[i][j]]++;
-	for(i=0;i<graph.size();i++)
-	{
+		}
+	}
+	for(i=0;i<graph.size();i++){
 		if(!indegree[i]) {
 			line.push(i);
 			visit[i]=0;
 			indegree[i]--;
 		}
 	}
-	while(!line.empty())
-	{
+	while(!line.empty()){
 		int node=line.front();
 		line.pop();
 		order[inc++]=node;
@@ -88,6 +82,8 @@ void topobfs(vector < vector < int > > & graph, int order[], int visit[])
 int optchain=0, optdead=0, optident=0;
 
 int main(){
+
+	int w;
 
 	ifstream fin;
 	fin.open("input.txt");
@@ -128,11 +124,11 @@ int main(){
 
 	memset(nvisit,-1,sizeof(nvisit));
 	
-	int comp=0;
+	int com=0;
 	for(i=n-1;i>=0;i--){
 		if(nvisit[visit[i]]==-1){
-			rdfs(rgraph,nvisit,visit[i],component,comp);
-			comp++;
+			rdfs(rgraph,nvisit,visit[i],component,com);
+			com++;
 		}
 	}
 
@@ -161,7 +157,7 @@ int main(){
 	memset(nvisit,0,sizeof(nvisit));
 	
 	inc=0;
-	topobfs(compgr,level,order,nvisit);
+	topobfs(compgr,order,nvisit);
 	
 	int number[n];
 	memset(number,0,sizeof(number));
@@ -228,7 +224,7 @@ int main(){
 		while(graph[node].size())
 		{
 			node=graph[node][0];
-			if(no[node]!=no[i] || node==i || graph[node].size()>1 || rgraph[node].size()>1) break;
+			if(component[node]!=component[i] || node==i || graph[node].size()>1 || rgraph[node].size()>1) break;
 			iterations++;
 			redir[node]=i;
 			levelz[node]=iterations;
@@ -253,11 +249,11 @@ int main(){
 			if(rgraph[i].size()!=1 && rgraph[i].size()!=2) 
 				continue;
 			if(rgraph[i].size()==1){
-				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],no[i]),i));
+				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],component[i]),i));
 			}
 			else{
 				long long val=max(rgraph[i][1]+1,rgraph[i][0]+1)*(long long)(n+1)+min(rgraph[i][0]+1,rgraph[i][1]+1);
-				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
+				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,component[i]),i));
 			}
 		}
 		for(i=0;i<n;i++){
@@ -278,10 +274,10 @@ int main(){
 		int noo=0;
 		for(i=0;i<n;i++){
 			if(parent[i]==i) {
-				members[no[i]].push_back(i);
+				members[component[i]].push_back(i);
 			}
 			else{
-				left[no[i]].push_back(i);
+				left[component[i]].push_back(i);
 				noo++;
 			}
 		}
@@ -346,10 +342,10 @@ int main(){
 				}
 			}
 			for(j=par[i];j<pivot;j++)
-				long long val=computeparalleli(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computeparalleli(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++){
-				long long val=computeranki(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computeranki(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
 			}
 		}
 		
@@ -377,11 +373,11 @@ int main(){
 			if(rgraph[i].size()!=1 && rgraph[i].size()!=2) 
 				continue;
 			if(rgraph[i].size()==1){
-				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],no[i]),i));
+				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],component[i]),i));
 			}
 			else{
 				long long val=max(rgraph[i][1]+1,rgraph[i][0]+1)*(long long)(n+1)+min(rgraph[i][0]+1,rgraph[i][1]+1);
-				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
+				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,component[i]),i));
 			}
 		}
 		for(i=0;i<n;i++){
@@ -399,10 +395,10 @@ int main(){
 		int noo=0;
 		for(i=0;i<n;i++){
 			if(parent[i]==i){
-				members[no[i]].push_back(i);
+				members[component[i]].push_back(i);
 			}
 			else{
-				left[no[i]].push_back(i);
+				left[component[i]].push_back(i);
 				noo++;
 			}
 		}
@@ -466,10 +462,10 @@ int main(){
 				}
 			}
 			for(j=par[i];j<pivot;j++)
-				long long val=computeparallelid(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computeparallelid(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
-				long long val=computerankid(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computerankid(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
 		}
 		
 		double sum=0;
@@ -509,7 +505,7 @@ int main(){
 		memset(initial,0,sizeof(initial));
 		
 		for(i=0;i<n;i++){
-			members[no[i]].push_back(i);
+			members[component[i]].push_back(i);
 		}
 
 		for(i=0;i<par.size()-1;i++)
@@ -597,7 +593,7 @@ int main(){
 		memset(initial,0,sizeof(initial));
 		
 		for(i=0;i<n;i++){
-			members[no[i]].push_back(i);
+			members[component[i]].push_back(i);
 		}
 
 		for(i=0;i<par.size()-1;i++)
@@ -680,7 +676,7 @@ int main(){
 		}
 
 		for(i=0;i<n;i++){
-			members[no[i]].push_back(i);
+			members[component[i]].push_back(i);
 		}
 
 		int thresh=100000;
@@ -769,7 +765,7 @@ int main(){
 		}
 
 		for(i=0;i<n;i++){
-			members[no[i]].push_back(i);
+			members[component[i]].push_back(i);
 		}
 
 		int thresh=100000;
@@ -854,11 +850,11 @@ int main(){
 			if(rgraph[i].size()!=1 && rgraph[i].size()!=2) 
 				continue;
 			if(rgraph[i].size()==1){
-				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],no[i]),i));
+				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],component[i]),i));
 			}
 			else{
 				long long val=max(rgraph[i][1]+1,rgraph[i][0]+1)*(long long)(n+1)+min(rgraph[i][0]+1,rgraph[i][1]+1);
-				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
+				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,component[i]),i));
 			}
 		}
 
@@ -880,11 +876,11 @@ int main(){
 		for(i=0;i<n;i++){
 			if(parent[i]==i) 
 			{
-				members[no[i]].push_back(i);
+				members[component[i]].push_back(i);
 			}
 			else
 			{
-				left[no[i]].push_back(i);
+				left[component[i]].push_back(i);
 				noo++;
 			}
 		}
@@ -951,12 +947,12 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparallelic(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
 			{
-				long long val=computerankic(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computerankic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
 			}
 		}
 		
@@ -984,11 +980,11 @@ int main(){
 		for(i=0;i<n;i++){
 			if(rgraph[i].size()!=1 && rgraph[i].size()!=2) continue;
 			if(rgraph[i].size()==1){
-				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],no[i]),i));
+				hvalues[(rgraph[i][0])%n].push_back(make_pair(make_pair(rgraph[i][0],component[i]),i));
 			}
 			else{
 				long long val=max(rgraph[i][1]+1,rgraph[i][0]+1)*(long long)(n+1)+min(rgraph[i][0]+1,rgraph[i][1]+1);
-				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,no[i]),i));
+				hvalues[(val)%(long long)n ].push_back(make_pair(make_pair(val,component[i]),i));
 			}
 		}
 	
@@ -1009,10 +1005,10 @@ int main(){
 		int noo=0;
 		for(i=0;i<n;i++){
 			if(parent[i]==i){
-				members[no[i]].push_back(i);
+				members[component[i]].push_back(i);
 			}
 			else{
-				left[no[i]].push_back(i);
+				left[component[i]].push_back(i);
 				noo++;
 			}
 		}
@@ -1075,12 +1071,12 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparallelic(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
 			{
-				long long val=computerankic(rcgraph,alt,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computerankic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
 			}
 		}
 		
