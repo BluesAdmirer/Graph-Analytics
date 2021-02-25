@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <fstream>
 #include "functions.cuh"
-// #include "kernels.cuh"
 
 using namespace std;
 
@@ -235,6 +234,15 @@ int main(){
 
 	// optdead = 1;
 
+	int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
+					*cmembers, *ctempg, *cedges, *crcw;
+	double *cinitial,*crank;
+
+	double rank[n];
+	for(i=0;i<n;i++){
+		rank[i]=1.0/n;
+	}
+
 	if(optident==1 && optchain==0 && optdead==0){
 		int parent[n];
 		vector < vector < int > > left(com);
@@ -279,10 +287,6 @@ int main(){
 			}
 		}
 
-		double rank[n];
-		for(i=0;i<n;i++){
-			rank[i]=1.0/n;
-		}
 		vector < int > par;
 		par.push_back(0);
 		for(i=0;i<com;i++){
@@ -331,10 +335,6 @@ int main(){
 			rcw[i1] = rcwgraph[i1].size();
 		}
 
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
-
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
 		cudaMalloc((void**)&corder, com*sizeof(int));
@@ -375,17 +375,6 @@ int main(){
 			for(j=par[i];j<par[i+1];j++){
 				long long val=computeparalleli(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 			}
-		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){ 
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
 		}
 	}
 
@@ -430,11 +419,6 @@ int main(){
 				noo++;
 			}
 		}
-		
-		double rank[n];
-		for(i=0;i<n;i++){
-			rank[i]=1.0/n;
-		}
 
 		vector < int > par;
 		par.push_back(0);
@@ -483,10 +467,6 @@ int main(){
 		for(int i1=0;i1<n;i1++){
 			rcw[i1] = rcwgraph[i1].size();
 		}
-		
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
 
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
@@ -526,25 +506,10 @@ int main(){
 			for(j=par[i];j<par[i+1];j++)
 				long long val=computeparallelid(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
-		}
 	}
 	
 	if(optident==0 && optchain==0 && optdead==0)
 	{
-		double rank[n];
-		for(i=0;i<n;i++){
-			rank[i]=1.0/n;
-		}
 
 		vector < int > par;
 		par.push_back(0);
@@ -598,10 +563,6 @@ int main(){
 		for(int i1=0;i1<n;i1++){
 			rcw[i1] = rcwgraph[i1].size();
 		}
-
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
 
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
@@ -642,26 +603,10 @@ int main(){
 				long long val=computeparallel(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 			}
 		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
-		}
 	}
 
 	if(optident==0 && optchain==0 && optdead==1)
 	{
-		double rank[n];
-		for(i=0;i<n;i++){
-			rank[i]=1.0/n;
-		}
-
 		vector < int > par;
 		par.push_back(0);
 		for(i=0;i<com;i++){
@@ -713,10 +658,6 @@ int main(){
 		for(int i1=0;i1<n;i1++){
 			rcw[i1] = rcwgraph[i1].size();
 		}
-
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
 
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
@@ -757,26 +698,10 @@ int main(){
 				long long val=computeparalleld(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 			}
 		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
-		}
 	}
 
 	if(optident==0 && optchain==1 && optdead==0)
 	{
-		double rank[n];
-		for(i=0;i<n;i++){
-			rank[i]=1.0/n;
-		}
-
 		vector < int > par;
 		par.push_back(0);
 		for(i=0;i<com;i++){
@@ -828,10 +753,6 @@ int main(){
 		for(int i1=0;i1<n;i1++){
 			rcw[i1] = rcwgraph[i1].size();
 		}
-
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
 
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
@@ -872,25 +793,10 @@ int main(){
 				long long val=computeparallelc(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
-		}
 	}
 
 	if(optident==0 && optchain==1 && optdead==1)
 	{
-		double rank[n];
-		for(i=0;i<n;i++){
-			rank[i]=1.0/n;
-		}
 
 		vector < int > par;
 		par.push_back(0);
@@ -943,10 +849,6 @@ int main(){
 		for(int i1=0;i1<n;i1++){
 			rcw[i1] = rcwgraph[i1].size();
 		}
-		
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
 
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
@@ -986,17 +888,6 @@ int main(){
 			for(j=par[i];j<par[i+1];j++){
 				long long val=computeparalleldc(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
-		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
 		}
 	}
 	
@@ -1049,11 +940,6 @@ int main(){
 				noo++;
 			}
 		}
-		
-		double rank[n];
-		for(i=0;i<n;i++){
-			rank[i]=1.0/n;
-		}
 
 		vector < int > par;
 		par.push_back(0);
@@ -1103,10 +989,6 @@ int main(){
 			rcw[i1] = rcwgraph[i1].size();
 		}
 
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
-
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
 		cudaMalloc((void**)&corder, com*sizeof(int));
@@ -1145,17 +1027,6 @@ int main(){
 			for(j=par[i];j<par[i+1];j++){
 				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
-		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
 		}
 	}
 
@@ -1203,9 +1074,7 @@ int main(){
 				noo++;
 			}
 		}
-		
-		double rank[n];
-		for(i=0;i<n;i++) rank[i]=1.0/n;
+	
 		vector < int > par;
 		par.push_back(0);
 		for(i=0;i<com;i++){
@@ -1254,10 +1123,6 @@ int main(){
 			rcw[i1] = rcwgraph[i1].size();
 		}
 
-		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
-					*cmembers, *ctempg, *cedges, *crcw;
-		double *cinitial,*crank;
-
 		cudaMalloc((void**)&cstart, sizeof(int));
 		cudaMalloc((void**)&cend, sizeof(int));
 		cudaMalloc((void**)&corder, com*sizeof(int));
@@ -1293,22 +1158,20 @@ int main(){
 			cudaDeviceSynchronize();
 
 			cudaMemcpy(initial, cinitial, n*sizeof(double), cudaMemcpyDeviceToHost);
-			for(j=par[i];j<par[i+1];j++)
-			{
+			for(j=par[i];j<par[i+1];j++){
 				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 		}
-		
-		double sum=0;
-		for(i=0;i<n;i++){
-			sum=sum+rank[i];
-		}
-		for(i=0;i<n;i++){
-			rank[i]=rank[i]/sum;
-		}
-		for(i=0;i<n;i++){
-			fout << rank[i] << "\n";
-		}
+	}
+	double sum=0;
+	for(i=0;i<n;i++){
+		sum=sum+rank[i];
+	}
+	for(i=0;i<n;i++){
+		rank[i]=rank[i]/sum;
+	}
+	for(i=0;i<n;i++){
+		fout << rank[i] << "\n";
 	}
 	return 0;
 }
