@@ -950,6 +950,7 @@ int main(){
 	for(i=0;i<n;i++){
 		rank[i]=rank[i]/sum;
 	}
+	fout << "Rank:\n";
 	for(i=0;i<n;i++){
 		fout << rank[i] << "\n";
 	}
