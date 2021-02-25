@@ -3,7 +3,7 @@
 #include <queue>
 #include <algorithm>
 #include <fstream>
-#include "main.h"
+#include "functions.cuh"
 
 using namespace std;
 
@@ -204,8 +204,6 @@ int main(){
 
 	int levelz[n];
 	memset(levelz,0,sizeof(levelz));
-	
-	double randomp=0.15/n;
 
 	double powers[n];
 	powers[0]=1;
@@ -304,7 +302,7 @@ int main(){
 		
 		for(i=0;i<par.size()-1;i++){
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++){
+			for(w=par[i];w<par[i+1];w++){
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++){
 					sum=sum+rgraph[members[order[w]][j]].size();
@@ -342,7 +340,7 @@ int main(){
 				}
 			}
 			for(j=par[i];j<pivot;j++)
-				long long val=computeparalleli(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computeparalleli(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++){
 				long long val=computeranki(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
@@ -426,7 +424,7 @@ int main(){
 		
 		for(i=0;i<par.size()-1;i++){
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++){
+			for(w=par[i];w<par[i+1];w++){
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++){
 					sum=sum+rgraph[members[order[w]][j]].size();
@@ -462,7 +460,7 @@ int main(){
 				}
 			}
 			for(j=par[i];j<pivot;j++)
-				long long val=computeparallelid(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computeparallelid(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
 				long long val=computerankid(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
@@ -511,7 +509,7 @@ int main(){
 		for(i=0;i<par.size()-1;i++)
 		{
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++)
+			for(w=par[i];w<par[i+1];w++)
 			{
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++){
@@ -549,7 +547,7 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparallel(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computeparallel(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
@@ -599,7 +597,7 @@ int main(){
 		for(i=0;i<par.size()-1;i++)
 		{
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++)
+			for(w=par[i];w<par[i+1];w++)
 			{
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++)
@@ -636,7 +634,7 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparalleld(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial);
+				long long val=computeparalleld(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
@@ -686,7 +684,7 @@ int main(){
 		for(i=0;i<par.size()-1;i++)
 		{
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++)
+			for(w=par[i];w<par[i+1];w++)
 			{
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++){
@@ -725,7 +723,7 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparallelc(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computeparallelc(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
@@ -775,7 +773,7 @@ int main(){
 		for(i=0;i<par.size()-1;i++)
 		{
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++)
+			for(w=par[i];w<par[i+1];w++)
 			{
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++){
@@ -814,7 +812,7 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparalleldc(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computeparalleldc(rcgraph,members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
@@ -908,7 +906,7 @@ int main(){
 		
 		for(i=0;i<par.size()-1;i++){
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++)
+			for(w=par[i];w<par[i+1];w++)
 			{
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++){
@@ -947,7 +945,7 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
@@ -1033,7 +1031,7 @@ int main(){
 
 		for(i=0;i<par.size()-1;i++){
 			int pivot=par[i];
-			for(int w=par[i];w<par[i+1];w++)
+			for(w=par[i];w<par[i+1];w++)
 			{
 				int sum=0;
 				for(j=0;j<members[order[w]].size();j++)
@@ -1071,7 +1069,7 @@ int main(){
 			}
 			for(j=par[i];j<pivot;j++)
 			{
-				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers);
+				long long val=computeparallelic(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial,levelz,redir,powers, n);
 			}
 #pragma omp parallel for private(j)
 			for(j=pivot;j<par[i+1];j++)
