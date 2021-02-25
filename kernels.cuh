@@ -71,16 +71,3 @@ __global__ void kernel4(int *cn, int *csize, int *cmem, int *cgraph,
 		}
 	}
 }
-
-
-__global__ void update(double *cinitial, int *cn){
-	int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	int num_threads = blockDim.x * gridDim.x;
-	for(int i=0;i<(*cn);i+=num_threads){
-		int ver = i + tid;
-		if(ver < (*cn)){
-			cinitial[ver]=0.85*cinitial[ver];
-			printf("%f\n",cinitial[ver] );
-		}
-	}
-}
