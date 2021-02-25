@@ -234,6 +234,24 @@ int main(){
 
 	// optdead = 1;
 
+	int tempg[n];
+	for(int i1=0;i1<n;i1++){
+		if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
+		else tempg[i1]=0;
+	}
+	int szzz = tempg[n-1]+rcwgraph[n-1].size();
+	int kkk=0;
+	int edges[szzz];
+	for(int i1=0;i1<n;i1++){
+		for(int c:rcwgraph[i1]){
+			edges[kkk++]=c;
+		}
+	}
+	int rcw[n];
+	for(int i1=0;i1<n;i1++){
+		rcw[i1] = rcwgraph[i1].size();
+	}
+
 	int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
 					*cmembers, *ctempg, *cedges, *crcw;
 	double *cinitial,*crank;
@@ -248,6 +266,13 @@ int main(){
 	cudaMalloc((void**)&crank, n*sizeof(double));
 	cudaMalloc((void**)&coutdeg, n*sizeof(int));
 	cudaMalloc((void**)&ctempg, n*sizeof(int));
+	cudaMalloc((void**)&cedges, szzz*sizeof(int));
+
+	cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
 
 	double rank[n];
 	for(i=0;i<n;i++){
@@ -312,7 +337,7 @@ int main(){
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -329,34 +354,12 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
 
 		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
 
 		for(i=0;i<par.size()-1;i++){
 			
@@ -435,7 +438,7 @@ int main(){
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -452,35 +455,13 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
 
 		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
-
+		
 		for(i=0;i<par.size()-1;i++){
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
 			cudaMemcpy(cend, &par[i+1], sizeof(int), cudaMemcpyHostToDevice);
@@ -521,7 +502,7 @@ int main(){
 			members[component[i]].push_back(i);
 		}
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -538,34 +519,12 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
 
 		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
 
 		for(i=0;i<par.size()-1;i++){
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
@@ -606,7 +565,7 @@ int main(){
 			members[component[i]].push_back(i);
 		}
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -623,35 +582,13 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
-
-		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMalloc((void**)&cmembers, szz*sizeof(int));
+		
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
-
+		
 		for(i=0;i<par.size()-1;i++){
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
 			cudaMemcpy(cend, &par[i+1], sizeof(int), cudaMemcpyHostToDevice);
@@ -691,7 +628,7 @@ int main(){
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -708,34 +645,12 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
 
 		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
 		
 		for(i=0;i<par.size()-1;i++){
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
@@ -777,7 +692,7 @@ int main(){
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -794,35 +709,13 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
-
-		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMalloc((void**)&cmembers, szz*sizeof(int));
+		
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
-
+		
 		for(i=0;i<par.size()-1;i++){
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
 			cudaMemcpy(cend, &par[i+1], sizeof(int), cudaMemcpyHostToDevice);
@@ -906,7 +799,7 @@ int main(){
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -923,34 +816,12 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
 
 		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
 		
 		for(i=0;i<par.size()-1;i++){
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
@@ -1030,7 +901,7 @@ int main(){
 		double initial[n];
 		memset(initial,0,sizeof(initial));
 
-		int memsz[com], temp[com], tempg[n];
+		int memsz[com], temp[com];
 		int szz=0;
 		for(int i1=0;i1<com;i1++){
 			memsz[i1]=members[order[i1]].size();
@@ -1047,35 +918,13 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-		for(int i1=0;i1<n;i1++){
-			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
-			else tempg[i1]=0;
-		}
-		int szzz = tempg[n-1]+rcwgraph[n-1].size();
-		int kkk=0;
-		int edges[szzz];
-		for(int i1=0;i1<n;i1++){
-			for(int c:rcwgraph[i1]){
-				edges[kkk++]=c;
-			}
-		}
-		int rcw[n];
-		for(int i1=0;i1<n;i1++){
-			rcw[i1] = rcwgraph[i1].size();
-		}
-
-		cudaMalloc((void**)&cmembers, szz*sizeof(int));
-		cudaMalloc((void**)&cedges, szzz*sizeof(int));
 		
-		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMalloc((void**)&cmembers, szz*sizeof(int));
+		
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
-
+		
 		for(i=0;i<par.size()-1;i++){
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
 			cudaMemcpy(cend, &par[i+1], sizeof(int), cudaMemcpyHostToDevice);
