@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <fstream>
 #include "functions.cuh"
+// #include "kernels.cuh"
 
 using namespace std;
 
@@ -234,7 +235,9 @@ int main(){
 	if(rac>0.2)
 		optchain=1;
 
-	// optdead =  1;
+	// optident = 1;
+	// optdead = 0;
+	// optchain = 0;
 
 	if(optident==1 && optchain==0 && optdead==0){
 		int parent[n];
@@ -295,55 +298,86 @@ int main(){
 			i=j-1;
 		}
 
-		int thresh=100000;
-
 		double initial[n];
 		memset(initial,0,sizeof(initial));
+
+		int memsz[com], temp[com], tempg[n];
+		int szz=0;
+		for(int i1=0;i1<com;i1++){
+			memsz[i1]=members[order[i1]].size();
+			szz+=members[order[i1]].size();
+		}
+		for(int i1=0;i1<com;i1++){
+			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			else temp[i1]=0;
+		}
+		int kk=0;
+		int mem[szz];
+		for(int i1=0;i1<com;i1++){
+			for(int c:members[order[i1]]){
+				mem[kk++]=c;
+			}
+		}
+		for(int i1=0;i1<n;i1++){
+			if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
+			else tempg[i1]=0;
+		}
+		int szzz = tempg[n-1]+rcwgraph[n-1].size();
+		int kkk=0;
+		int edges[szzz];
+		for(int i1=0;i1<n;i1++){
+			for(int c:rcwgraph[i1]){
+				edges[kkk++]=c;
+			}
+		}
+		int rcw[n];
+		for(int i1=0;i1<n;i1++){
+			rcw[i1] = rcwgraph[i1].size();
+		}
+
+		int *cstart, *cend, *corder, *cmemsz, *ctemp, *coutdeg,
+					*cmembers, *ctempg, *cedges, *crcw;
+		double *cinitial,*crank;
+
+		cudaMalloc((void**)&cstart, sizeof(int));
+		cudaMalloc((void**)&cend, sizeof(int));
+		cudaMalloc((void**)&corder, com*sizeof(int));
+		cudaMalloc((void**)&cmemsz, com*sizeof(int));
+		cudaMalloc((void**)&ctemp, com*sizeof(int));
+		cudaMalloc((void**)&cmembers, szz*sizeof(int));
+		cudaMalloc((void**)&ctempg, n*sizeof(int));
+		cudaMalloc((void**)&cedges, szzz*sizeof(int));
+		cudaMalloc((void**)&crcw, n*sizeof(int));
+		cudaMalloc((void**)&cinitial, n*sizeof(double));
+		cudaMalloc((void**)&crank, n*sizeof(double));
+		cudaMalloc((void**)&coutdeg, n*sizeof(int));
 		
+		cudaMemcpy(corder, order, com*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(ctemp, temp, com*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(ctempg, tempg, n*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(cedges, edges, szzz*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(crcw, rcw, n*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(coutdeg, outdeg, n*sizeof(int), cudaMemcpyHostToDevice);
+
 		for(i=0;i<par.size()-1;i++){
-			int pivot=par[i];
-			for(w=par[i];w<par[i+1];w++){
-				int sum=0;
-				for(j=0;j<members[order[w]].size();j++){
-					sum=sum+rgraph[members[order[w]][j]].size();
-				}
-				if(sum>thresh){
-					int temp=order[pivot];
-					order[pivot]=order[w];
-					order[w]=temp;
-					pivot++;
-				}
-			}
-			int k;
-			for(w=par[i];w<pivot;w++)
-			{
-#pragma omp parallel for private(j,k)
-				for(j=0;j<members[order[w]].size();j++)
-				{
-					int node=members[order[w]][j];
-					for(k=0;k<rcwgraph[node].size();k++){
-						initial[node]+=rank[rcwgraph[node][k]]/outdeg[rcwgraph[node][k]];
-					}
-					initial[node]=0.85*initial[node];
-				}
-			}
-#pragma omp parallel for private(w,j,k)
-			for(w=pivot;w<par[i+1];w++)
-			{
-				for(j=0;j<members[order[w]].size();j++)
-				{
-					int node=members[order[w]][j];
-					for(k=0;k<rcwgraph[node].size();k++){
-						initial[node]+=rank[rcwgraph[node][k]]/outdeg[rcwgraph[node][k]];
-					}
-					initial[node]=0.85*initial[node];
-				}
-			}
-			for(j=par[i];j<pivot;j++)
+			
+			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
+			cudaMemcpy(cend, &par[i+1], sizeof(int), cudaMemcpyHostToDevice);
+			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
+			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
+
+			dim3 threadB(10,10);
+			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+							cedges, coutdeg, corder, ctemp, ctempg);
+
+			cudaDeviceSynchronize();
+
+			cudaMemcpy(initial, cinitial, n*sizeof(double), cudaMemcpyDeviceToHost);
+
+			for(j=par[i];j<par[i+1];j++){
 				long long val=computeparalleli(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
-#pragma omp parallel for private(j)
-			for(j=pivot;j<par[i+1];j++){
-				long long val=computeranki(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial);
 			}
 		}
 		
