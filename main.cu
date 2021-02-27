@@ -87,7 +87,7 @@ int main(){
 	fin.open("input.txt");
 	
 	ofstream fout;
-	fout.open("output1.txt");
+	fout.open("output.txt");
 	
 	int n,m;
 	fin >> n >> m;
