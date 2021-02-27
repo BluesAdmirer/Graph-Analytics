@@ -3,7 +3,7 @@
 #include <queue>
 #include <algorithm>
 #include <fstream>
-#include "functions1.cuh"
+#include "functions.cuh"
 
 using namespace std;
 
@@ -278,10 +278,6 @@ int main(){
 	for(i=0;i<n;i++){
 		rank[i]=1.0/n;
 	}
-
-	optident = 1;
-	optchain = 0;
-	optdead = 0;
 
 	if(optident==1 && optchain==0 && optdead==0){
 		int parent[n];
