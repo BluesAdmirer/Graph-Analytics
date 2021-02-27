@@ -3,7 +3,7 @@
 #include <queue>
 #include <algorithm>
 #include <fstream>
-#include "functions.cuh"
+#include "functions1.cuh"
 
 using namespace std;
 
@@ -87,7 +87,7 @@ int main(){
 	fin.open("input.txt");
 	
 	ofstream fout;
-	fout.open("output.txt");
+	fout.open("output1.txt");
 	
 	int n,m;
 	fin >> n >> m;
@@ -279,6 +279,10 @@ int main(){
 		rank[i]=1.0/n;
 	}
 
+	optident = 1;
+	optchain = 0;
+	optdead = 0;
+
 	if(optident==1 && optchain==0 && optdead==0){
 		int parent[n];
 		vector < vector < int > > left(com);
@@ -368,8 +372,9 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -468,8 +473,9 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -532,8 +538,9 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -595,8 +602,9 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -658,8 +666,12 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+
+
+
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -722,8 +734,9 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -829,8 +842,9 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -931,8 +945,9 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(10,10);
-			kernel<<<10,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+			dim3 threadB(1024,1024,64);
+			dim3 blockB(63555,63535,63535);
+			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
 			cudaDeviceSynchronize();
@@ -956,4 +971,3 @@ int main(){
 	}
 	return 0;
 }
-
