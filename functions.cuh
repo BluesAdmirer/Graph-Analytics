@@ -1,4 +1,4 @@
-#include "kernels1.cuh"
+#include "kernels.cuh"
 using namespace std;
 
 int computeparalleli(vector<vector<int>> &graph, int parent[], vector<int> left, int n, int outdeg[], vector<int> &mapit, double rank[],double initial[], int nn)
