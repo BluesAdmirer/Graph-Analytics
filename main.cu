@@ -99,7 +99,7 @@ int main(){
 	memset(outdeg,0,sizeof(outdeg));
 
 	for(i=0;i<m;i++){
-		fin >> u >> v, --u,--v;
+		fin >> u >> v;
 		graph[u].push_back(v);
 		rgraph[v].push_back(u);
 		outdeg[u]++;
@@ -446,7 +446,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -511,7 +511,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -575,7 +575,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -639,7 +639,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -707,7 +707,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -815,7 +815,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -918,7 +918,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
