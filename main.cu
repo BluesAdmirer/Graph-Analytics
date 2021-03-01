@@ -344,7 +344,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[order[i1-1]]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
 			else temp[i1]=0;
 		}
 		int kk=0;
