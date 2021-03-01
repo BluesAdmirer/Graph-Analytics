@@ -3,9 +3,11 @@
 #include <queue>
 #include <algorithm>
 #include <fstream>
+#include <chrono>
 #include "functions.cuh"
 
 using namespace std;
+using namespace std::chrono;
 
 int inc=0;
 
@@ -82,6 +84,7 @@ void topobfs(vector < vector < int > > & graph, int order[], int visit[]){
 int optchain=0, optdead=0, optident=0;
 
 int main(){
+	auto start = high_resolution_clock::now();
 
 	ifstream fin;
 	fin.open("input.txt");
@@ -965,5 +968,8 @@ int main(){
 	for(i=0;i<n;i++){
 		fout << rank[i] << "\n";
 	}
+	auto stop = high_resolution_clock::now();
+    	auto duration = duration_cast<microseconds>(stop - start);
+    	cout << "Time taken: " << duration.count() / 1000000.0 << "seconds" << "\n";
 	return 0;
 }
