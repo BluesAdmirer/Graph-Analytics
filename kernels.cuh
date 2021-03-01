@@ -41,7 +41,8 @@ __global__ void kernel2(int *cn, int *csize, int *cmem, int *cgraph,
 
 	int w = blockIdx.x*blockDim.x + threadIdx.x;
 	int num_threads_x = blockDim.x * gridDim.x;
-	for(;w<(*cn) && cmarked[w]==0;w+=num_threads_x){
+	for(;w<(*cn);w+=num_threads_x){
+		if(cmarked[w] != 0) continue;
 		int size = csize[w];
 		int j = blockIdx.y*blockDim.y + threadIdx.y;
 		int num_threads_y = blockDim.y * gridDim.y;	
@@ -74,6 +75,7 @@ __global__ void kernel4(int *cn, int *csize, int *cmem, int *cgraph,
 	int w = blockIdx.x*blockDim.x + threadIdx.x;
 	int num_threads_x = blockDim.x * gridDim.x;
 	for(;w<(*cn) && cmarked[w]==0;w+=num_threads_x){
+		if(cmarked[w] != 0) continue;
 		int size = csize[w];
 		int j = blockIdx.y*blockDim.y + threadIdx.y;	
 		int num_threads_y = blockDim.y * gridDim.y;
