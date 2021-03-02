@@ -65,8 +65,8 @@ int computeparalleli(vector<vector<int>> &graph, int parent[], vector<int> left,
 		cudaMemcpy(ccurr, curr, n*sizeof(double), cudaMemcpyHostToDevice);
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 
 		kernel1<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cparent);
 		
@@ -77,9 +77,11 @@ int computeparalleli(vector<vector<int>> &graph, int parent[], vector<int> left,
 			anse=max(anse, fabs(randomp+initial[mapit[i]]+damp*curr[i]-rank[mapit[i]]));
 		}
 
+		// cout << "check: \n";
 		for(i=0;i<n;i++)
 		{   
 			{
+				// cout << "Node: " << mapit[i] << " " << curr[i] << "\n";
 				rank[mapit[i]]=damp*curr[i]+randomp+initial[mapit[i]];
 			}   
 		}
@@ -164,9 +166,8 @@ int  computeparallelid(vector < vector < int > > & graph,int parent[],vector < i
 		cudaMemcpy(cmarked, marked, n*sizeof(int), cudaMemcpyHostToDevice);
 
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
-		
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 		kernel2<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cparent, cmarked);
 		
 		cudaMemcpy(curr, ccurr, n*sizeof(double), cudaMemcpyDeviceToHost);
@@ -263,9 +264,8 @@ int  computeparallel(vector < vector < int > > & graph,int n,int outdeg[],vector
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
-		
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 		kernel3<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg);
 		
 		cudaMemcpy(curr, ccurr, n*sizeof(double), cudaMemcpyDeviceToHost);
@@ -358,9 +358,8 @@ int  computeparalleld(vector < vector < int > > & graph,int n,int outdeg[],vecto
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmarked, marked, n*sizeof(int), cudaMemcpyHostToDevice);
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
-		
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 		kernel4<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cmarked);
 		
 		cudaMemcpy(curr, ccurr, n*sizeof(double), cudaMemcpyDeviceToHost);
@@ -477,9 +476,8 @@ int computeparallelc(vector < vector < int > > & graph,int n,int outdeg[],vector
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 		
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
-		
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 		kernel3<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg);
 	
 		cudaMemcpy(curr, ccurr, n*sizeof(double), cudaMemcpyDeviceToHost);
@@ -598,9 +596,8 @@ int computeparalleldc(vector < vector < int > > & graph,int n,int outdeg[],vecto
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmarked, marked, n*sizeof(int), cudaMemcpyHostToDevice);
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
-		
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 		kernel4<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cmarked);
 
 		cudaMemcpy(curr, ccurr, n*sizeof(double), cudaMemcpyDeviceToHost);
@@ -730,9 +727,8 @@ int computeparallelic(vector < vector < int > > & graph,int parent[],vector <int
 		cudaMemcpy(ccurr, curr, n*sizeof(double), cudaMemcpyHostToDevice);
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
-		
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 		kernel1<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cparent);
 
 		cudaMemcpy(curr, ccurr, n*sizeof(double), cudaMemcpyDeviceToHost);
@@ -860,9 +856,8 @@ int computeparallelidc(vector < vector < int > > & graph, int parent[],vector <i
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 		cudaMemcpy(cmarked, marked, n*sizeof(int), cudaMemcpyHostToDevice);
 
-		dim3 threadB(1024,1024);
-		dim3 blockB(63555,63535);
-		
+		dim3 threadB(10,10);
+		dim3 blockB(10,10);
 		kernel2<<<blockB,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cparent, cmarked);
 		
 		cudaMemcpy(curr, ccurr, n*sizeof(double), cudaMemcpyDeviceToHost);

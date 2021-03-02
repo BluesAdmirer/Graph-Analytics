@@ -373,8 +373,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
@@ -475,9 +475,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
-			
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -540,9 +539,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
-			
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -605,9 +603,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
-			
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -673,9 +670,8 @@ int main(){
 
 
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
-			
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -739,9 +735,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
-			
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -848,9 +843,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
-			
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -952,9 +946,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
-			
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
