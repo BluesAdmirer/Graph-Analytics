@@ -84,7 +84,9 @@ void topobfs(vector < vector < int > > & graph, int order[], int visit[]){
 int optchain=0, optdead=0, optident=0;
 
 int main(){
-	auto start = high_resolution_clock::now();
+
+
+    auto start = high_resolution_clock::now();
 
 	ifstream fin;
 	fin.open("input.txt");
@@ -102,7 +104,7 @@ int main(){
 	memset(outdeg,0,sizeof(outdeg));
 
 	for(i=0;i<m;i++){
-		fin >> u >> v;
+		fin >> u >> v, --v, --u;
 		graph[u].push_back(v);
 		rgraph[v].push_back(u);
 		outdeg[u]++;
@@ -235,8 +237,6 @@ int main(){
 	if(rac>0.2)
 		optchain=1;
 
-	// optdead = 1;
-
 	int tempg[n];
 	for(int i1=0;i1<n;i1++){
 		if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
@@ -346,12 +346,14 @@ int main(){
 			memsz[i1]=members[order[i1]].size();
 			szz+=members[order[i1]].size();
 		}
+
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
 		int mem[szz];
+
 		for(int i1=0;i1<com;i1++){
 			for(int c:members[order[i1]]){
 				mem[kk++]=c;
@@ -365,14 +367,15 @@ int main(){
 		cudaMemcpy(cmembers, mem, szz*sizeof(int), cudaMemcpyHostToDevice);
 
 		for(i=0;i<par.size()-1;i++){
-			
+		
 			cudaMemcpy(cstart, &par[i], sizeof(int), cudaMemcpyHostToDevice);
 			cudaMemcpy(cend, &par[i+1], sizeof(int), cudaMemcpyHostToDevice);
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
+
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -449,7 +452,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -472,8 +475,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -514,7 +517,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -524,7 +527,6 @@ int main(){
 				mem[kk++]=c;
 			}
 		}
-
 		cudaMalloc((void**)&cmembers, szz*sizeof(int));
 		
 		cudaMemcpy(cmemsz, memsz, com*sizeof(int), cudaMemcpyHostToDevice);
@@ -537,8 +539,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -578,7 +580,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -601,8 +603,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -642,7 +644,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -668,8 +670,8 @@ int main(){
 
 
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -710,7 +712,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -733,8 +735,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -818,7 +820,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -841,8 +843,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -921,7 +923,7 @@ int main(){
 			szz+=members[order[i1]].size();
 		}
 		for(int i1=0;i1<com;i1++){
-			if(i1) temp[i1]=temp[i1-1]+memsz[order[i1-1]];
+			if(i1) temp[i1]=temp[i1-1]+memsz[i1-1];
 			else temp[i1]=0;
 		}
 		int kk=0;
@@ -944,8 +946,8 @@ int main(){
 			cudaMemcpy(cinitial, initial, n*sizeof(double), cudaMemcpyHostToDevice);
 			cudaMemcpy(crank, rank, n*sizeof(double), cudaMemcpyHostToDevice);
 
-			dim3 threadB(1024,1024,64);
-			dim3 blockB(63555,63535,63535);
+			dim3 threadB(10,10,10);
+			dim3 blockB(10,10,10);
 			kernel<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 							cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -964,12 +966,14 @@ int main(){
 	for(i=0;i<n;i++){
 		rank[i]=rank[i]/sum;
 	}
-	fout << "Rank:\n";
+	// fout << "Rank:\n";
 	for(i=0;i<n;i++){
+		// fout << "Node " << i+1 << ": " << rank[i] << "\n";
 		fout << rank[i] << "\n";
 	}
 	auto stop = high_resolution_clock::now();
-    	auto duration = duration_cast<microseconds>(stop - start);
-    	cout << "Time taken: " << duration.count() / 1000000.0 << "seconds" << "\n";
+    auto duration = duration_cast<microseconds>(stop - start);
+    cerr << "Time taken: "
+         << duration.count() / 1000000.0 << "seconds" << "\n";
 	return 0;
 }

@@ -4,11 +4,11 @@ __global__ void kernel(int *cstart, int *cend, int *cmemsz, int *cmember, int *c
 	int w = blockIdx.z*blockDim.z + threadIdx.z + (*cstart);
 	int num_threads_z = blockDim.z * gridDim.z;
 	for(;w<(*cend);w+=num_threads_z){
-		int size = cmemsz[corder[w]];
+		int size = cmemsz[w];
 		int j = blockIdx.x*blockDim.x+threadIdx.x;
 		int num_threads_x = blockDim.x * gridDim.x;
 		for(;j<size;j+=num_threads_x){
-			int node = cmember[ctemp[corder[w]]+j];
+			int node = cmember[ctemp[w]+j];
 			int k = blockIdx.y*blockDim.y+threadIdx.y;
 			int size1 = crcw[node];
 			int num_threads_y = blockDim.y * gridDim.y;
@@ -18,6 +18,7 @@ __global__ void kernel(int *cstart, int *cend, int *cmemsz, int *cmember, int *c
 		}
 	}
 }
+
 
 __global__ void kernel1(int *cn, int *csize, int *cmem, int *cgraph, 
 							int *ctemp, double *ccurr, double *crank, int *coutdeg, int *cparent)
@@ -42,7 +43,7 @@ __global__ void kernel2(int *cn, int *csize, int *cmem, int *cgraph,
 	int w = blockIdx.x*blockDim.x + threadIdx.x;
 	int num_threads_x = blockDim.x * gridDim.x;
 	for(;w<(*cn);w+=num_threads_x){
-		if(cmarked[w] != 0) continue;
+		if(cmarked[w] != 0) continue; 
 		int size = csize[w];
 		int j = blockIdx.y*blockDim.y + threadIdx.y;
 		int num_threads_y = blockDim.y * gridDim.y;	
@@ -74,7 +75,7 @@ __global__ void kernel4(int *cn, int *csize, int *cmem, int *cgraph,
 {
 	int w = blockIdx.x*blockDim.x + threadIdx.x;
 	int num_threads_x = blockDim.x * gridDim.x;
-	for(;w<(*cn) && cmarked[w]==0;w+=num_threads_x){
+	for(;w<(*cn);w+=num_threads_x){
 		if(cmarked[w] != 0) continue;
 		int size = csize[w];
 		int j = blockIdx.y*blockDim.y + threadIdx.y;	
