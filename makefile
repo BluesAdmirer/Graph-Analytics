@@ -1,3 +1,3 @@
 main : main.cu
-	nvcc main.cu -o main -arch=sm_60
+	nvcc main.cu -o main -arch=sm_61
 	./main
