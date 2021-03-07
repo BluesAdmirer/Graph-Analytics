@@ -1,6 +1,6 @@
 # Graph_Analytics_BTP
 
-PageRank calculation on Dynamic graph aided with cuda programming. <br/>
+PageRank calculation on given graph aided with cuda programming. <br/>
 (*Ongoing project :))
 
 Contributors: <br/>
