@@ -122,8 +122,6 @@ int main(){
 		hash[k]=cnt++;
 	}
 
-	cout << cnt << " " << n << "\n";
-
 	for(i=0;i<m;i++){
 		long long u=hash[edgess[i].first], v = hash[edgess[i].second];
 		graph[u].push_back(v);
@@ -304,8 +302,6 @@ int main(){
 		rank[i]=1.0/n;
 	}
 
-	cout << optident << " " << optchain << " " << optdead << "\n";
-
 	if(optident==1 && optchain==0 && optdead==0)
 	{
 		long long *parent = (long long *)malloc(n*sizeof(long long));
@@ -323,7 +319,7 @@ int main(){
 			else
 			{
 				long long val=max(rgraph[i][1]+1,rgraph[i][0]+1)*(n+1)+min(rgraph[i][0]+1,rgraph[i][1]+1);
-				hvalues[(val)%n ].push_back(make_pair(make_pair(val,component[i]),i));
+				hvalues[(val)%n].push_back(make_pair(make_pair(val,component[i]),i));
 			}
 		}
 
@@ -538,7 +534,7 @@ int main(){
 		}
 		
 		double *initial = (double *)malloc(n*sizeof(double));
-		memset(initial,0,sizeof(initial));
+		memset(initial,0,n*sizeof(double));
 
 		long long *memsz = (long long *)malloc(com*sizeof(long long));
 		long long *temp = (long long *)malloc(com*sizeof(long long));
