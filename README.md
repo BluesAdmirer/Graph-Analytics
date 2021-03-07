@@ -13,16 +13,6 @@ Prof: Dr. Dip Sankar Banerjee
 Install Nvidia cuda toolkit <br/>
 create a file (input.txt) <br/>
 add testcase into input.txt <br/>
-for example <br/>
-6 8 <br/>
-1 2 <br/>
-1 3 <br/>
-2 4 <br/>
-3 4 <br/>
-4 1 <br/>
-2 5 <br/>
-2 6 <br/>
-6 5 <br/>
 
 # How to run
 > sh script.sh
