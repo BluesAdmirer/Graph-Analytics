@@ -1,2 +1,1 @@
-clear
 make -B
