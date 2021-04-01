@@ -1872,5 +1872,6 @@ int main(){
     cudaFree(crcw);
     cudaFree(cinitial);
     cudaFree(crank);
+	
 	return 0;
 }
