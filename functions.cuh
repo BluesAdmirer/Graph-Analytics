@@ -1,29 +1,44 @@
 #include "kernels.cuh"
 using namespace std;
 
+// graph = graph with reversed edges
+// parent = to store the parent of identical nodes
+// left = identical nodes
+// mapit = member vector = (mapit[i] = members of component[i] excluding identical nodes)
 float computeparalleli(vector<vector<long long>> &graph, long long *parent, vector<long long> left, long long n, long long *outdeg, vector<long long> &mapit, double *rank,double *initial, long long nn)
 {
+	// total = time taken by kernel;
 	float total = 0.0;
 	long long i, iterations = 0;
+	// thres = max allowed error
 	double damp=0.85, thres=1e-10, error = 0;
 	double randomp=(1-damp)/graph.size();
-	long long thresh=10000;
+	long long thresh=10000; // to sort the nodes
 	long long pivot=0;
+	// sorting
+	// o to pivot => nodes with smaller edge list ( < thres)
+	// pivot to n => nodes with higher edge list ( > thres)
 	for(i=0;i<n;i++)
-	{   
+	{
 		long long node=mapit[i];
 		if(graph[node].size()<thresh)
-		{   
+		{
 			long long temp=mapit[pivot];
 			mapit[pivot]=node;
 			mapit[i]=temp;
 			pivot++;
 		}   
 	}
+	// curr ranks 
 	double *curr = (double *)malloc(n*sizeof(double));
 	for(long long i=0;i<n;i++){
 		curr[i]=0;
 	}
+	// temp, sz, graphh == CSR
+	// temp = prefix sum of sz
+	// sz = size of graph[node]
+	// graphh = edge list
+	// mem = vector to int array of mapit
 	long long *mem = (long long *)malloc(n*sizeof(long long));
 	long long *sz = (long long *)malloc(n*sizeof(long long));
 	for(i=0;i<n;i++){
@@ -72,11 +87,14 @@ float computeparalleli(vector<vector<long long>> &graph, long long *parent, vect
 
 	do  
 	{   
+		// 0 to pivot calculation
 		error=0;
 		for(i=0;i<n;i++){
 			curr[i]=0;
 		}
 
+		// ccurr = array of size n(number of members of component i) initialized with 0
+		// ccurr = stores the ranks computed within the component with the help of crank array
 		cudaMemcpy(ccurr, curr, n*sizeof(double), cudaMemcpyHostToDevice);
 		cudaMemcpy(crank, rank, nn*sizeof(double), cudaMemcpyHostToDevice);
 
@@ -88,7 +106,14 @@ float computeparalleli(vector<vector<long long>> &graph, long long *parent, vect
 		cudaEventCreate(&stop);
 
 		cudaEventRecord(start, 0);
-
+		
+		// cn = pivot
+		// csize = size of adjacency list of nodes
+		// cmem = members of the component
+		// cgraph = edge list
+		// ctemp = prefix sum of csize
+		// coutdeg = outdegree of nodes
+		// cparent = parents of identical nodes
 		kernel1test<<<blockB ,threadB>>>(cn, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cparent);
 		
 		cudaDeviceSynchronize();
@@ -105,6 +130,7 @@ float computeparalleli(vector<vector<long long>> &graph, long long *parent, vect
 
 		for(i=pivot;i<n;i++)
 		{   
+			// pivot to n calculation (separate calculation for all the nodes as adj. list size is high)
 			{   
 				cudaMemcpy(cm, &i, sizeof(long long), cudaMemcpyHostToDevice);
 				cudaMemcpy(ccurr, curr, n*sizeof(double), cudaMemcpyHostToDevice);
@@ -114,7 +140,8 @@ float computeparalleli(vector<vector<long long>> &graph, long long *parent, vect
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cm = ith node
 				kernel1test1<<<32,32>>>(cm, csize, cmem, cgraph, ctemp, ccurr, crank, coutdeg, cparent);
 				
 				cudaDeviceSynchronize();
@@ -131,10 +158,12 @@ float computeparalleli(vector<vector<long long>> &graph, long long *parent, vect
 		}   
 
 		double anse=0;
+		// anse = max error
 		for(i=0;i<n;i++){
 			anse=max(anse, fabs(randomp+initial[mapit[i]]+damp*curr[i]-rank[mapit[i]]));
 		}
-
+		
+		// set the rank values
 		for(i=0;i<n;i++)
 		{   
 			{
@@ -176,6 +205,10 @@ void computeranki(vector < vector < long long > > & graph, long long *parent,vec
 				long long node=mapit[i];
 				double ans=0;
 				for(j=0;j<graph[node].size();j++){
+					// if node is identical to another parent[node]=node
+					// else parent[node] = u (u is parent)
+					// as identical node's pagerank is not calculated and assigned values afterwards,
+					// we use parent[graph[node][j]] instead graph[node][j] because graph[node][j] might be identical node
 					ans=ans+rank[parent[graph[node][j]]]/outdeg[graph[node][j]];
 				}
 				curr[i]=randomp+damp*ans+initial[mapit[i]];
@@ -196,6 +229,10 @@ void computeranki(vector < vector < long long > > & graph, long long *parent,vec
 
 float computeparallelid(vector < vector < long long > > & graph,long long *parent,vector < long long > & left,long long n,long long *outdeg,vector < long long > &  mapit,double *rank,double *initial, long long nn)
 {
+	// It is same calculation as computeparalleli with one change
+	// as dead node computation is included
+	// we use marked array = to store the nodes which are dead nodes 
+	// we calculate the pagerank for nodes which are not marked
 	float total = 0.0;
 	double thres=1e-10;
 	double dis=1e-12;
@@ -336,20 +373,24 @@ float computeparallelid(vector < vector < long long > > & graph,long long *paren
 
 		double anse=0;
 		for(i=0;i<n;i++){
-			if(!marked[i]){
+			if(!marked[i]){ // if not dead node
 				anse=max(anse, fabs(randomp+initial[mapit[i]]+damp*curr[i]-rank[mapit[i]]));
 			}
 		}
 		iterations++;
 		for(i=0;i<n;i++){
-			if(!marked[i])   {
+			if(!marked[i])   { // if not dead node
 				rank[mapit[i]]=damp*curr[i]+randomp+initial[mapit[i]];
 			}   
 		}
 		if(iterations%20==0){   
+			// after every 20 every operations
+			// we check whether any node has been dead or not
+			// By dead, we mean that whether its pagerank is changing significantly or not
 			for(i=0;i<n;i++){   
-				if(!marked[i]){   
-					if(fabs(prev[i]-curr[i]) < value )marked[i]=1;
+				if(!marked[i]){ // if not dead
+					if(fabs(prev[i]-curr[i]) < value) // if difference between pagerank of previous iteration and next iteration is < value mark dead.
+						marked[i]=1;
 					else
 						prev[i]=curr[i];
 				}   
@@ -357,6 +398,7 @@ float computeparallelid(vector < vector < long long > > & graph,long long *paren
 		}   
 		error = anse;
 	}while(error > thres );
+	// left node computations
 	for(i=0;i<left.size();i++)
 		rank[left[i]]=rank[parent[left[i]]];
 	cudaFree(cn);
@@ -852,6 +894,9 @@ float computeparallelc(vector < vector < long long > > & graph,long long n,long 
 	long long iterations=0;
 	double randomp=(1-damp)/graph.size();
 	long long limit=0;
+	// 0 to limit are the nodes which are not part of chain
+	// limit to n are the nodes which are part of chain (we have formula to calculate the pagerank of them)
+	// limit to n are dealt with at the end
 	for(i=0;i<n;i++)
 	{   
 		long long node=mapit[i];
@@ -1006,6 +1051,7 @@ float computeparallelc(vector < vector < long long > > & graph,long long n,long 
 		}
 		error = anse; 
 	}while(error > thres);
+	// limit to n calculation
 	for(i=limit;i<n;i++)
 	{   
 		long long node=mapit[i];
