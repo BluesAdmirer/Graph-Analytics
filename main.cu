@@ -248,6 +248,7 @@ int main(){
 	
 	inc=0;
 	// order = topological order = level by level components
+	// nvisit = level of the component
 	topobfs(compgr,order,nvisit);
 	
 	// calculation to include the optident or not
@@ -342,8 +343,10 @@ int main(){
 	if(rac>0.2)
 		optchain=1;
 
-	// tempg, edges, crcw = for CSR
+	// tempg, edges, rcw = for CSR
 	// edges = edge list
+	// rccw[i] = rcwgrah[i].size()
+	// tempg = prefix sum of crcw
 	long long *tempg = (long long *)malloc(n*sizeof(long long));
 	for(long long i1=0;i1<n;i1++){
 		if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
@@ -379,23 +382,34 @@ int main(){
 	cudaMalloc((void**)&ctempg, n*sizeof(long long));
 	cudaMalloc((void**)&cedges, szzz*sizeof(long long));
 
+	// corder = level by level ordering of components
 	cudaMemcpy(corder, order, com*sizeof(long long), cudaMemcpyHostToDevice);
+	// ctempg = prefix sum of crcw
 	cudaMemcpy(ctempg, tempg, n*sizeof(long long), cudaMemcpyHostToDevice);
+	// cedges = edge list of rcwgraph
 	cudaMemcpy(cedges, edges, szzz*sizeof(long long), cudaMemcpyHostToDevice);
+	// crcw[i] = size of rcwgraph[i]
 	cudaMemcpy(crcw, rcw, n*sizeof(long long), cudaMemcpyHostToDevice);
+	// coutdeg = outdegree of nodes
 	cudaMemcpy(coutdeg, outdeg, n*sizeof(long long), cudaMemcpyHostToDevice);
 
+	// rank = pageranks
 	double *rank = (double *)malloc(n*sizeof(double));
 	for(i=0;i<n;i++){
+		// initialize with 1.0/n
 		rank[i]=1.0/n;
 	}
 
 	if(optident==1 && optchain==0 && optdead==0)
 	{
+		// parent/head of the identical nodes
 		long long *parent = (long long *)malloc(n*sizeof(long long));
+		// identical nodes whose pagerank won't be calculated
+		// they would just be equated to pagerank of parent/head node
 		vector < vector < long long > > left(com);
 		for(i=0;i<n;i++)
 			parent[i]=i;
+		// hash values to find identical nodes
 		vector < vector <  pair  <  pair < long long , long long > , long long >  > > hvalues(n);
 		for(i=0;i<n;i++)
 		{
@@ -429,30 +443,38 @@ int main(){
 		for(i=0;i<n;i++){
 			if(parent[i]==i) 
 			{
+				// members of the component whose pagerank will be computed
 				members[component[i]].push_back(i);
 			}
 			else
 			{
+				// members of the component which are identical to some other node
 				left[component[i]].push_back(i);
 				noo++;
 			}
 		}
-		
+		// par stores the first component number of every level 
 		vector < long long > par;
 		par.push_back(0);
 		for(i=0;i<com;i++)
 		{
 			long long j=i;
-			while(j<com && nvisit[order[j]]==nvisit[order[i]])
+			while(j<com && nvisit[order[j]]==nvisit[order[i]]) // component are on same level increment j
 				j++;
+			// now j is on the next level
 			par.push_back(j);
 			i=j-1;
 		}
-		long long thresh=100000;
+		long long thresh=100000; // to sort the components
+		// initial array for storing the contribution of one component to another (pagerank of nodes)
 		double *initial = (double *)malloc(n*sizeof(double));
 		memset(initial,0,n*sizeof(double));
 		long long w;
 
+		// memsz, mem, temp for CSR
+		// memsz = size of members
+		// temp = prefix sum of memsz
+		// mem = list of members
 		long long *memsz = (long long *)malloc(com*sizeof(long long));
 		long long *temp = (long long *)malloc(com*sizeof(long long));
 		long long szz=0;
@@ -483,9 +505,15 @@ int main(){
 
 		for(i=0;i<par.size()-1;i++)
 		{
+			// [par[i], par[i+1]) components on the same level
 			long long pivot=par[i];
+			// [par[i], pivot) components with total edges > thresh
+			// [pivot, par[i+1]) components with total edges < thresh
+			
+			// sorting
 			for(w=par[i];w<par[i+1];w++)
 			{
+				// sum = total edges
 				long long sum=0;
 				for(j=0;j<members[order[w]].size();j++)
 					sum=sum+rgraph[members[order[w]][j]].size();
@@ -497,8 +525,12 @@ int main(){
 					pivot++;
 				}
 			}
+			
+			// Pagerank computation (Contribution of nodes of one component to another)
+			// par[i] to pivot => Computation for all components separatly
 			for(w=par[i];w<pivot;w++)
 			{
+				// cn = current component
 				long long *cn;
 				cudaMalloc((void**)&cn, sizeof(long long));
 				cudaMemcpy(cn, &w, sizeof(long long), cudaMemcpyHostToDevice);
@@ -511,7 +543,18 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cn = current component
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -528,7 +571,8 @@ int main(){
 				cudaMemcpy(initial, cinitial, n*sizeof(double), cudaMemcpyDeviceToHost);
 				cudaFree(cn);
 			}
-
+			
+			// pivot to par[i+1] => Computation for all components at the same time (by one kernel)
 			if(pivot < par[i+1])
 			{
 				cudaMemcpy(cstart, &pivot, sizeof(long long), cudaMemcpyHostToDevice);
@@ -545,6 +589,18 @@ int main(){
 
 				cudaEventRecord(start, 0);
 
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -559,6 +615,8 @@ int main(){
 				total += elapsedTime;
 				cudaMemcpy(initial, cinitial, n*sizeof(double), cudaMemcpyDeviceToHost);
 			}
+			
+			// Pagerank computation within the component
 			for(j=par[i];j<pivot;j++){
 				total += computeparalleli(rcgraph,parent,left[order[j]],members[order[j]].size(),outdeg,members[order[j]],rank,initial, n);
 			}
