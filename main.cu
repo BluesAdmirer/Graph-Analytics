@@ -342,6 +342,8 @@ int main(){
 	if(rac>0.2)
 		optchain=1;
 
+	// tempg, edges, crcw = for CSR
+	// edges = edge list
 	long long *tempg = (long long *)malloc(n*sizeof(long long));
 	for(long long i1=0;i1<n;i1++){
 		if(i1) tempg[i1]=tempg[i1-1]+rcwgraph[i1-1].size();
