@@ -888,7 +888,7 @@ float computeparallelc(vector < vector < long long > > & graph,long long n,long 
 	float total = 0.0;
 	double damp=0.85;
 	double thres=1e-10;
-	long long i,j;
+	long long i;
 	double *curr = (double *)malloc(n*sizeof(double));
 	double error=0;
 	long long iterations=0;
@@ -908,13 +908,6 @@ float computeparallelc(vector < vector < long long > > & graph,long long n,long 
 			limit++;
 		}   
 	} 
-	vector<long long> spare;
-	for(i=0;i<limit;i++)
-	{   
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[graph[node][j]]!=graph[node][j]) spare.push_back(graph[node][j]);
-	}
 
 	long long *mem = (long long *)malloc(n*sizeof(long long));
 	long long *sz = (long long *)malloc(n*sizeof(long long));
@@ -1044,11 +1037,6 @@ float computeparallelc(vector < vector < long long > > & graph,long long n,long 
 				rank[mapit[i]]=damp*curr[i]+randomp+initial[mapit[i]];
 		}
 		iterations++;
-		for(j=0;j<spare.size();j++)
-		{   
-			double val=powers[level[spare[j]]];
-			rank[spare[j]]=rank[redir[spare[j]]]*val+(1.0-val)/graph.size();
-		}
 		error = anse; 
 	}while(error > thres);
 	// limit to n calculation
@@ -1074,7 +1062,7 @@ void computerankc(vector < vector < long long > > & graph,long long n,long long 
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i,j;
+	long long i;
 	vector < double > curr(n);
 	double error=0;
 	long long  iterations=0;
@@ -1090,13 +1078,6 @@ void computerankc(vector < vector < long long > > & graph,long long n,long long 
 			mapit[i]=temp;
 			limit++;
 		}
-	}
-	vector < long long > spare;
-	for(i=0;i<limit;i++)
-	{
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[graph[node][j]]!=graph[node][j]) spare.push_back(graph[node][j]);
 	}
 	do
 	{
@@ -1115,11 +1096,6 @@ void computerankc(vector < vector < long long > > & graph,long long n,long long 
 		for(i=0;i<limit;i++)
 			rank[mapit[i]]=curr[i];
 		iterations++;
-		for(i=0;i<spare.size();i++)
-		{
-			double val=powers[level[spare[i]]];
-			rank[spare[i]]=rank[redir[spare[i]]]*val+(1.0-val)/graph.size();
-		}
 	}while(error > thres );
 	for(i=limit;i<n;i++)
 	{
@@ -1135,7 +1111,7 @@ float computeparalleldc(vector < vector < long long > > & graph,long long n,long
 	double damp=0.85;
 	double thres=1e-10;
 	double value=((1e-12)*10.0)/double(n);
-	long long i,j;
+	long long i;
 	double *curr = (double *)malloc(n*sizeof(double));
 	double *prev = (double *)malloc(n*sizeof(double));
 	for(i=0;i<n;i++){
@@ -1157,13 +1133,6 @@ float computeparalleldc(vector < vector < long long > > & graph,long long n,long
 			mapit[i]=temp;
 			limit++;
 		}   
-	}
-	vector<long long> spare(12);
-	for(i=0;i<limit;i++)
-	{   
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[graph[node][j]]!=graph[node][j]) spare.push_back(graph[node][j]);
 	}
 
 	long long *mem = (long long *)malloc(n*sizeof(long long));
@@ -1308,11 +1277,6 @@ float computeparalleldc(vector < vector < long long > > & graph,long long n,long
 				}   
 			}   
 		}
-		for(j=0;j<spare.size();j++)
-		{   
-			double val=powers[level[spare[j]]];
-			rank[spare[j]]=rank[redir[spare[j]]]*val+(1.0-val)/graph.size();
-		}   
 		error = anse;
 	}while(error > thres);
 	for(i=limit;i<n;i++)
@@ -1338,7 +1302,7 @@ void computerankdc(vector < vector < long long > > & graph,long long n,long long
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i,j;
+	long long i;
 	vector < double > curr(n);
 	vector < double > prev(n,1.0/n);
 	double value=((1e-12)*10.0)/double ( n );
@@ -1358,13 +1322,6 @@ void computerankdc(vector < vector < long long > > & graph,long long n,long long
 			mapit[i]=temp;
 			limit++;
 		}
-	}
-	vector < long long > spare;
-	for(i=0;i<limit;i++)
-	{
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[graph[node][j]]!=graph[node][j]) spare.push_back(graph[node][j]);
 	}
 	do
 	{
@@ -1386,7 +1343,7 @@ void computerankdc(vector < vector < long long > > & graph,long long n,long long
 		for(i=0;i<limit;i++) if(!marked[i])
 			rank[mapit[i]]=curr[i];
 		iterations++;
-		if(iterations%20==0)
+		if(iterations%20==0){
 			for(i=0;i<limit;i++)
 			{
 				if(!marked[i])
@@ -1395,10 +1352,6 @@ void computerankdc(vector < vector < long long > > & graph,long long n,long long
 					else prev[i]=curr[i];
 				}
 			}
-		for(i=0;i<spare.size();i++)
-		{
-			double val=powers[level[spare[i]]];
-			rank[spare[i]]=rank[redir[spare[i]]]*val+(1.0-val)/graph.size();
 		}
 	}while(error > thres );
 	for(i=limit;i<n;i++)
@@ -1414,7 +1367,7 @@ float computeparallelic(vector < vector < long long > > & graph,long long *paren
 	float total = 0.0;
 	double damp=0.85;
 	double thres=1e-10;
-	long long i,j;
+	long long i;
 	double *curr = (double *)malloc(n*sizeof(double));
 	double error=0;
 	long long iterations=0;
@@ -1430,13 +1383,6 @@ float computeparallelic(vector < vector < long long > > & graph,long long *paren
 			mapit[i]=temp;
 			limit++;
 		}   
-	}
-	vector<long long> spare;
-	for(i=0;i<limit;i++)
-	{   
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[graph[node][j]]!=graph[node][j]) spare.push_back(graph[node][j]);
 	}
 	long long *mem = (long long *)malloc(n*sizeof(long long));
 	long long *sz = (long long *)malloc(n*sizeof(long long));
@@ -1575,11 +1521,6 @@ float computeparallelic(vector < vector < long long > > & graph,long long *paren
 			}   
 		}
 		iterations++;
-		for(j=0;j<spare.size();j++)
-		{   
-			double val=powers[level[spare[j]]];
-			rank[spare[j]]=rank[redir[spare[j]]]*val+(1.0-val)/graph.size();
-		}
 		error = anse;
 	}while(error > thres );
 	for(i=limit;i<n;i++)
@@ -1607,7 +1548,7 @@ void computerankic(vector < vector < long long > > & graph,long long *parent,vec
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i,j;
+	long long i;
 	vector < double > curr(n);
 	double error=0;
 	long long  iterations=0;
@@ -1623,14 +1564,6 @@ void computerankic(vector < vector < long long > > & graph,long long *parent,vec
 			mapit[i]=temp;
 			limit++;
 		}
-	}
-	vector < long long > spare;
-	for(i=0;i<limit;i++)
-	{
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[parent[graph[node][j]]]!=parent[graph[node][j]]) 
-				spare.push_back(parent[graph[node][j]]);
 	}
 	do
 	{
@@ -1649,11 +1582,6 @@ void computerankic(vector < vector < long long > > & graph,long long *parent,vec
 		for(i=0;i<limit;i++)
 			rank[mapit[i]]=curr[i];
 		iterations++;
-		for(i=0;i<spare.size();i++)
-		{
-			double val=powers[level[spare[i]]];
-			rank[spare[i]]=rank[redir[spare[i]]]*val+(1.0-val)/graph.size();
-		}
 	}while(error > thres );
 	for(i=limit;i<n;i++)
 	{
@@ -1671,7 +1599,7 @@ float computeparallelidc(vector < vector < long long > > & graph, long long *par
 	double damp=0.85;
 	double thres=1e-10;
 	double value=((1e-12)*10.0)/double ( n );
-	long long i,j;
+	long long i;
 	double *curr = (double *)malloc(n*sizeof(double));
 	double *prev = (double *)malloc(n*sizeof(double));
 	for(i=0;i<n;i++){
@@ -1694,13 +1622,6 @@ float computeparallelidc(vector < vector < long long > > & graph, long long *par
 			limit++;
 		}   
 	}
-	vector<long long> spare;
-	for(i=0;i<limit;i++)
-	{   
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[graph[node][j]]!=graph[node][j]) spare.push_back(graph[node][j]);
-	}   
 
 	long long *mem = (long long *)malloc(n*sizeof(long long));
 	long long *sz = (long long *)malloc(n*sizeof(long long));
@@ -1852,11 +1773,6 @@ float computeparallelidc(vector < vector < long long > > & graph, long long *par
 			}   
 		}   
 		error = anse;
-		for(j=0;j<spare.size();j++)
-		{   
-			double val=powers[level[spare[j]]];
-			rank[spare[j]]=rank[redir[spare[j]]]*val+(1.0-val)/graph.size();
-		}      
 	}while(error > thres);
 	for(i=limit;i<n;i++)
 	{   
@@ -1884,7 +1800,7 @@ void computerankidc(vector < vector < long long > > & graph,long long *parent,ve
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i,j;
+	long long i;
 	vector < double > curr(n);
 	vector < double > prev(n,1.0/n);
 	double value=((1e-12)*10.0)/double ( n );
@@ -1904,14 +1820,6 @@ void computerankidc(vector < vector < long long > > & graph,long long *parent,ve
 			mapit[i]=temp;
 			limit++;
 		}
-	}
-	vector < long long > spare;
-	for(i=0;i<limit;i++)
-	{
-		long long node=mapit[i];
-		for(j=0;j<graph[node].size();j++)
-			if(redir[parent[graph[node][j]]]!=parent[graph[node][j]]) 
-				spare.push_back(parent[graph[node][j]]);
 	}
 	do
 	{
@@ -1933,7 +1841,7 @@ void computerankidc(vector < vector < long long > > & graph,long long *parent,ve
 		for(i=0;i<limit;i++) if(!marked[i])
 			rank[mapit[i]]=curr[i];
 		iterations++;
-		if(iterations%20==0)
+		if(iterations%20==0){
 			for(i=0;i<limit;i++)
 			{
 				if(!marked[i])
@@ -1942,10 +1850,6 @@ void computerankidc(vector < vector < long long > > & graph,long long *parent,ve
 					else prev[i]=curr[i];
 				}
 			}
-		for(i=0;i<spare.size();i++)
-		{
-			double val=powers[level[spare[i]]];
-			rank[spare[i]]=rank[redir[spare[i]]]*val+(1.0-val)/graph.size();
 		}
 	}while(error > thres );
 	for(i=limit;i<n;i++)
