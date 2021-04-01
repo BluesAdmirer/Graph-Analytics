@@ -78,12 +78,15 @@ __global__ void kerneltest1(long long *cstart, long long *cend, long long *cmems
 	}
 }
 
+// cn = pivot (node is changing)
 __global__ void kernel1test(long long *cn, long long *csize, long long *cmem, long long *cgraph, 
 							long long *ctemp, double *ccurr, double *crank, long long *coutdeg, long long *cparent)
 {
+	// w = index of node
 	long long w = blockIdx.x*blockDim.x + threadIdx.x;
 	long long num_threads_x = blockDim.x * gridDim.x;
 	for(;w<(*cn);w+=num_threads_x){
+		// size = size of adj. list of node at index w
 		long long size = csize[w];
 		long long j = blockIdx.y*blockDim.y + threadIdx.y;
 		long long num_threads_y = blockDim.y * gridDim.y;
@@ -94,14 +97,18 @@ __global__ void kernel1test(long long *cn, long long *csize, long long *cmem, lo
 	}
 }
 
+// node is fixed
 __global__ void kernel1test1(long long *cn, long long *csize, long long *cmem, long long *cgraph, 
 							long long *ctemp, double *ccurr, double *crank, long long *coutdeg, long long *cparent)
 {
+	// w = index of node
 	long long w = *cn;
+	// size of adj. list of node at w
 	long long size = csize[w];
 	long long j = blockIdx.x*blockDim.x + threadIdx.x;
 	long long num_threads_x = blockDim.x * gridDim.x;
 	for(;j<size;j+=num_threads_x){
+		// edge (u -> w) u = node 
 		long long node = cgraph[ctemp[w]+j];
 		atomicAdd(&ccurr[w], crank[cparent[node]]/coutdeg[node]);
 	}
