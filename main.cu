@@ -739,7 +739,18 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cn = w
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -771,7 +782,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -875,7 +898,17 @@ int main(){
 
 				cudaEventRecord(start, 0);
 
-
+				// cn = w
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -907,7 +940,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1008,8 +1053,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
-				kerneltest1<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+				
+				// cn = w
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
+				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
 				cudaDeviceSynchronize();
@@ -1040,7 +1096,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1142,8 +1210,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
-				kerneltest1<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
+				
+				// cn = w
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
+				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
 				cudaDeviceSynchronize();
@@ -1174,7 +1253,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1276,7 +1367,18 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cn = w
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1308,7 +1410,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1454,7 +1568,18 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cn = w
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1486,7 +1611,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1627,7 +1764,18 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cn = w
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest1<<<blockB,threadB>>>(cn, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
@@ -1659,7 +1807,19 @@ int main(){
 				cudaEventCreate(&stop);
 
 				cudaEventRecord(start, 0);
-
+				
+				// cstart = pivot
+				// cend = par[i+1]
+				// cmemsz = member size
+				// cmembers = list of all members
+				// crcw = cross edge graph size
+				// cinitial = contribution of one node to another (different components) 
+				// crank = Pagerank
+				// cedges = edge list
+				// coutdeg = outdegree of the nodes
+				// corder = level by level topological component ordering
+				// ctemp = prefix sum of cmemsz
+				// ctempg = prefix sum of crcw
 				kerneltest<<<blockB,threadB>>>(cstart, cend, cmemsz, cmembers, crcw, cinitial, crank,
 								cedges, coutdeg, corder, ctemp, ctempg);
 
