@@ -1,1 +1,2 @@
-make -B
+make
+./main
