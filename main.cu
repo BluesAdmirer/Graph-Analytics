@@ -11,18 +11,25 @@
 using namespace std;
 using namespace std::chrono;
 
+// total time taken by kernel computations
 double total = 0.0;
 
 long long inc=0;
 
+// disjoint set union
+// find the parent
 long long find(long long u,long long *parent){
 	if(parent[u]<0) return u;
 	return parent[u]=find(parent[u],parent);
 }
 
+// union by size 
+// parent[u] = -1 if parent
+// 		size if not parent (part of some set)
 long long unionit(long long u,long long v,long long *parent){
 	long long pu=find(u,parent);
 	long long pv=find(v,parent);
+	// same set
 	if(pu==pv) return 0;
 	if(-parent[pu]>-parent[pv]){   
 		parent[pu]=parent[pu]+parent[pv];
@@ -35,40 +42,60 @@ long long unionit(long long u,long long v,long long *parent){
 	return 1;
 }
 
+// dfs 
+// visit = stores the values the nodes when they leave the computation (same as stack)
+// kosaraju's algorithm's part
+// nvisit = visited or not
+// dfs uses original graph
 void dfs(vector < vector < long long > > & graph,long long *visit,long long *nvisit,long long node){
-	nvisit[node]=1;
+	nvisit[node]=1; // visited
 	for(long long i=0;i<graph[node].size();i++)
-		if(nvisit[graph[node][i]]==-1)
+		if(nvisit[graph[node][i]]==-1) // if not visited
 			dfs(graph,visit,nvisit,graph[node][i]);
-	visit[inc++]=node;
+	visit[inc++]=node; // enter the stack 
 }
 
+// SCC computations
+// com = component number
+// nvisit = nodes
+// rdfs uses graph with reverse edges
+// kosaraju's algorithm's part
 void rdfs(vector < vector < long long > > & graph,long long *nvisit,long long node,long long *component,long long com){
-	nvisit[node]=1;
-	component[node]=com;
+	nvisit[node]=1; // visited
+	component[node]=com; // set component of the node
 	for(long long i=0;i<graph[node].size();i++)
-		if(nvisit[graph[node][i]]==-1)
+		if(nvisit[graph[node][i]]==-1) // if not visited
 			rdfs(graph,nvisit,graph[node][i],component,com);
 }
 
+// topological order of SCCs
+// graph = component graph
+//		where nodes = Components
+//		      edges between component if there is an edge from one component to another
+// order = topological order = level by level nodes
+// visit = visited or not
 void topobfs(vector < vector < long long > > & graph, long long *order, long long *visit){
 	long long i,j;
-	queue < long long > line;
+	queue < long long > line; // for bfs
 	memset(visit, -1, sizeof(long long)*graph.size());
 	long long indegree[graph.size()];
 	memset(indegree,0,graph.size()*sizeof(long long));
+	// indegree of the component (number of components which have incoming edges to the component)
 	for(i=0;i<graph.size();i++){
 		for(j=0;j<graph[i].size();j++){
 			indegree[graph[i][j]]++;
 		}
 	}
 	for(i=0;i<graph.size();i++){
+		// add the nodes which have indegree = 0 into the line (queue)
 		if(!indegree[i]) {
 			line.push(i);
 			visit[i]=0;
 			indegree[i]--;
 		}
 	}
+	// bfs
+	// order = topological order of components
 	while(!line.empty()){
 		long long node=line.front();
 		line.pop();
@@ -85,48 +112,74 @@ void topobfs(vector < vector < long long > > & graph, long long *order, long lon
 	}
 }
 
+// optchain = chain node computation should be included or not
+// optdead = dead node computation should be included or not
+// optident = identical node computation should be included or not
+
+// computation for optchain and optident is included
+// for optdead, set optdead = 1 in main function
 long long optchain=0, optdead=0, optident=0;
 
 int main(){
-
+	// start time 
     auto start = high_resolution_clock::now();
 
-	ifstream fin;
+	ifstream fin; // input file
 	fin.open("input.txt");
 	
-	ofstream fout;
+	ofstream fout; // output file
 	fout.open("output.txt");
 	
+	// n = number of nodes
+	// m = number of edges
 	long long n,m;
 	fin >> n >> m;
 	
+	// graph = original graph
+	// rgraph = graph with reversed edges
+	// rcgraph = graph with edges within component
+	// rcwgraph = graph with edges (one component to another) (cross edges)
 	long long i,j;
 	vector < vector < long long > > graph(n), rgraph(n), rcgraph(n), rcwgraph(n);
 
+	// outdegree of node
 	long long *outdeg = (long long *)malloc(n*sizeof(long long));
 	memset(outdeg,0,n*sizeof(long long));
 
+	// below computation is to avoid any unusual node values
+	/*
+		for example,
+			n = 5
+			values of the nodes = 12 234 2312 123121 1232122121
+			we convert it into = 0 1 2 3 4 5
+		we first add values of the nodes into set
+		assign each element of the set correspoing index values (map is used for this/ hash)
+	*/
+	// set to store the values of the nodes
 	set<long long> s;
+	// edges of the node (u,v) (u->v)
 	vector<pair<long long,long long>> edgess;
-
+	
 	for(i=0;i<m;i++){
 		long long u,v;
-		fin >> u >> v;
-		s.insert(u);
-		s.insert(v);
-		edgess.push_back(make_pair(u,v));
+		fin >> u >> v; // input edges
+		s.insert(u); // insert node u into set
+		s.insert(v); // insert node v into set
+		edgess.push_back(make_pair(u,v)); // insert edge (u,v) into edges 
 	}
+	// hash to assign 0 to n-1 to nodes
 	map<long long,long long> hash;
 	long long cnt=0;
-	for(auto k:s){
+	for(auto k:s){ // for every element of set
 		hash[k]=cnt++;
 	}
 
+	// create graph using hash values
 	for(i=0;i<m;i++){
 		long long u=hash[edgess[i].first], v = hash[edgess[i].second];
-		graph[u].push_back(v);
-		rgraph[v].push_back(u);
-		outdeg[u]++;
+		graph[u].push_back(v); // add edge into the graph
+		rgraph[v].push_back(u); // reversed edge
+		outdeg[u]++; // outdegree
 	}
 
 	long long *visit = (long long *)malloc(n*sizeof(long long));
@@ -138,38 +191,53 @@ int main(){
 	long long *nvisit = (long long *)malloc(n*sizeof(long long));
 	memset(nvisit, -1, n*sizeof(long long));
 	
+	// kosaraju's algorithm computation
 	for(i=0;i<n;i++){
-		if(nvisit[i]==-1) {
+		if(nvisit[i]==-1) { // if not visited
 			dfs(graph,visit,nvisit,i);	
 		}
 	}
 
 	memset(nvisit,-1,n*sizeof(long long));
 	
+	// component number
 	long long com=0;
 	for(i=n-1;i>=0;i--){
-		if(nvisit[visit[i]]==-1){
-			rdfs(rgraph,nvisit,visit[i],component,com);
+		if(nvisit[visit[i]]==-1){ // if not visited
+			rdfs(rgraph,nvisit,visit[i],component,com); // scc computation
 			com++;
 		}
 	}
 
+	// create graph rcgraph and rcwgraph
+	// rcgraph = graph with edges within components (using reverse edges)
+	// rcwgraph = graph with edges (one component to another) (cross edges) (using reverse edges)
 	for(i=0;i<n;i++){
 		for(j=0;j<rgraph[i].size();j++){
 			if(component[i]==component[rgraph[i][j]]){ 
+				// if in the same component
 				rcgraph[i].push_back(rgraph[i][j]);
 			}
 			else{ 
+				// if in the diff components
+				// cross edges
 				rcwgraph[i].push_back(rgraph[i][j]);
 			}
 		}
 	}
 	
+	// members[i] = members of the component i
+	// compgr = component graph
+	//		where nodes = Components
+	//		      edges between component if there is an edge from one component to another
 	vector < vector < long long > > members(com), compgr(com);
 	
+	// create component graph
 	for(i=0;i<n;i++){
 		for(j=0;j<graph[i].size();j++){
-			if(component[i]!=component[graph[i][j]]){
+			if(component[i]!=component[graph[i][j]]){ // if edge is cross edge == add edge into the component graph
+				// might be the case where multiple edges from one to another component
+				// can be ignored as it doesn't affect the results
 				compgr[component[i]].push_back(component[graph[i][j]]);
 			}
 		}
@@ -179,31 +247,39 @@ int main(){
 	memset(nvisit,0,n*sizeof(long long));
 	
 	inc=0;
+	// order = topological order = level by level components
 	topobfs(compgr,order,nvisit);
 	
+	// calculation to include the optident or not
 	long long *number = (long long *)malloc(n*sizeof(long long));
 	memset(number,0,n*sizeof(long long));
-
+	
+	// number = number of nodes which have only one incoming edge from this node
 	for(i=0;i<n;i++){
 		if(rgraph[i].size()==1){
 			number[rgraph[i][0]]++;
 		}
 	}
 
+	// equiperc = number of nodes which will save computation
 	long long equiperc=0;
 	for(i=0;i<n;i++){
 		equiperc=equiperc+max((long long)0,number[i]-1);
 	}
 	
+	// saved computations nodes/total nodes
 	double vai=double(equiperc)/n;
+	// total edges/total nodes
 	double ratio=double(m)/n;
 
 	if(vai>0.06 && ratio>3.0)
 		optident=1;
 	
+	// parent2 is parent of chain if any
 	long long *parent2 = (long long *)malloc(n*sizeof(long long));
 	memset(parent2,-1,n*sizeof(long long));
 	
+	// parent1 size of the chain
 	long long *parent1 = (long long *)malloc(n*sizeof(long long));
 	memset(parent1,-1,n*sizeof(long long));
 	
@@ -214,25 +290,33 @@ int main(){
 			if(graph[rcgraph[i][j]].size()>1 || rgraph[rcgraph[i][j]].size()>1) 
 				continue;
 			if(unionit(rcgraph[i][j],i,parent1)){
+				// i -> rcgraph[i][j] in reverse graph
+				// i <- rcgraph[i][j] in original graph
+				// parent2[i] = rcgraph[i][j] if part of the chain
 				parent2[i]=rcgraph[i][j];
 			}
 		}
 	}
 	
+	// redir = head of the chain
 	long long *redir = (long long *)malloc(n*sizeof(long long));
 	for(i=0;i<n;i++){
 		redir[i]=i;
 	}
 
+	// levelz = level at which node appear in the node
 	long long *levelz = (long long *)malloc(n*sizeof(long long));
 	memset(levelz,0,n*sizeof(long long));
 
+	// powers = used for pagerank computation of chain nodes
+	// powers[k] = (0.85)^k;
 	double *powers = (double *)malloc(n*sizeof(double));
 	powers[0]=1;
 	for(i=1;i<n;i++){
 		powers[i]=powers[i-1]*0.85;
 	}
 	
+	// vac = number of nodes in chain
 	long long vac=0;
 	
 	for(i=0;i<n;i++)
@@ -249,9 +333,11 @@ int main(){
 			redir[node]=i;
 			levelz[node]=iterations;
 		}
+		// iterations = chain size
 		vac=vac+iterations;
 	}
 
+	// chain size/total nodes
 	double rac=double(vac)/n;
 	if(rac>0.2)
 		optchain=1;
