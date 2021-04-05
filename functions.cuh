@@ -1062,7 +1062,7 @@ void computerankc(vector < vector < long long > > & graph,long long n,long long 
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i;
+	long long i,j;
 	vector < double > curr(n);
 	double error=0;
 	long long  iterations=0;
@@ -1302,7 +1302,7 @@ void computerankdc(vector < vector < long long > > & graph,long long n,long long
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i;
+	long long i, j;
 	vector < double > curr(n);
 	vector < double > prev(n,1.0/n);
 	double value=((1e-12)*10.0)/double ( n );
@@ -1548,7 +1548,7 @@ void computerankic(vector < vector < long long > > & graph,long long *parent,vec
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i;
+	long long i, j;
 	vector < double > curr(n);
 	double error=0;
 	long long  iterations=0;
@@ -1800,7 +1800,7 @@ void computerankidc(vector < vector < long long > > & graph,long long *parent,ve
 {
 	double damp=0.85;
 	double thres=1e-10;
-	long long i;
+	long long i, j;
 	vector < double > curr(n);
 	vector < double > prev(n,1.0/n);
 	double value=((1e-12)*10.0)/double ( n );
